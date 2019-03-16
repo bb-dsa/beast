@@ -106,6 +106,57 @@ else
     }
 }
 
+#-------------------------------------------------------------------------------
+#
+# Copy all the XSLT modules to the target directory.
+#
+# FIXME: Change this so we can just specify a directory,
+#        rather than every file individually.
+#
+#        Also, somehow force dependencies in a general way
+#        such that the XSLT has to be executed again
+#        if any of the modules change. For example,
+#        if base-extract-xml-pages.xml changes, then
+#        an invocation of extract-xml-pages.xsl (which
+#        imports the former) must be run again.
+#
+make extract-xml-pages.xsl
+    :
+        docca/include/docca/extract-xml-pages.xsl
+    :
+        @copy_script
+    ;
+
+make base-extract-xml-pages.xsl
+    :
+        docca/include/docca/base-extract-xml-pages.xsl
+    :
+        @copy_script
+    ;
+
+# Make a copy of the given XSLT file.
+#
+actions copy_script
+{
+    cp $(2[1]) $(1)
+}
+
+#-------------------------------------------------------------------------------
+#
+# Run index.xml through the first transformation stage
+# (assembling and splitting the XML into page-specific files).
+#
+make xml-pages.xml
+    :
+        index.xml
+        extract-xml-pages.xsl
+    :
+        saxonhe.saxonhe
+    ;
+
+
+
+
 make combine.xslt : index.xml : @null_action ;
 
 actions null_action
