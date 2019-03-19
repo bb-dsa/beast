@@ -1,0 +1,3 @@
+[submodule "doc/xslt-visualizer"]
+	path = doc/xslt-visualizer
+	url = https://github.com/evanlenz/xslt-visualizer
