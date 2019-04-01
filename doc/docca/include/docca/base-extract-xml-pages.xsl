@@ -17,7 +17,9 @@
   <xsl:variable name="index-xml" select="/"/>
 
   <xsl:template match="/">
-    <xsl:apply-templates select="/doxygenindex/compound"/>
+    <index>
+      <xsl:apply-templates select="/doxygenindex/compound"/>
+    </index>
     <!-- Testing the ID-related functions
     <xsl:value-of select="replace(d:extract-ns('put'), '::$', '')"/>
     <xsl:text>&#xA;</xsl:text>
@@ -63,14 +65,22 @@
       <xsl:apply-templates mode="page-id" select="."/>
     </xsl:variable>
     <!-- FIXME: Enable after we add support for overloads (to prevent attempting to write to the same output location more than once) -->
+    <!-- Just for now: add position() to disambiguate the IDs; still need to add support for the overload page -->
+    <xsl:result-document href="xml-pages/{$page-id}_{position()}.xml">
     <!--
     <xsl:result-document href="xml-pages/{$page-id}.xml">
-      <xsl:apply-templates mode="page-content" select="."/>
-    </xsl:result-document>
     -->
+      <xsl:apply-templates mode="page-content" select=".">
+        <xsl:with-param name="page-id" select="$page-id" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:result-document>
+                                            <!-- FIXME: see above FIXME note -->
+    <page id="{$page-id}" href="{$page-id}_{position()}.xml"/>
+    <!--
     <d:result-document href="xml-pages/{$page-id}.xml">
       <xsl:apply-templates mode="page-content" select="."/>
     </d:result-document>
+    -->
   </xsl:template>
 
           <xsl:template mode="page-id" priority="1"
@@ -89,9 +99,14 @@
                   <!-- By default, copy everything -->
                   <xsl:template mode="build-compound-page" match="@* | node()" name="copy-in-compound-page">
                     <xsl:copy>
-                      <xsl:apply-templates mode="#current" select="@* | node()"/>
+                      <xsl:apply-templates mode="#current" select="@*"/>
+                      <xsl:apply-templates mode="compound-content-insert" select="."/>
+                      <xsl:apply-templates mode="#current"/>
                     </xsl:copy>
                   </xsl:template>
+
+                          <!-- By default, don't insert anything -->
+                          <xsl:template mode="compound-content-insert" match="*"/>
 
                   <xsl:template mode="build-compound-page" match="listofallmembers"/>
 
@@ -159,6 +174,13 @@
                   <!-- Switch to an unfiltered copy once we're done filtering out the undesired elements -->
                   <xsl:template mode="build-member-page" match="memberdef/node()" priority="2">
                     <xsl:apply-templates mode="copy-member-content" select="."/>
+                  </xsl:template>
+
+                  <!-- Add the page ID to the top of both compound and member pages -->
+                  <xsl:template mode="member-content-insert
+                                      compound-content-insert" match="/doxygen">
+                    <xsl:param name="page-id" tunnel="yes"/>
+                    <xsl:attribute name="d:page-id" select="$page-id"/>
                   </xsl:template>
 
                   <!-- TODO: refactor this rule -->
