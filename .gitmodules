@@ -1,3 +1,6 @@
 [submodule "doc/xslt-visualizer"]
 	path = doc/xslt-visualizer
 	url = https://github.com/evanlenz/xslt-visualizer
+[submodule "doc/docca/include/xslt-visualizer"]
+	path = doc/docca/include/xslt-visualizer
+	url = https://github.com/evanlenz/xslt-visualizer
