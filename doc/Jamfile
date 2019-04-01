@@ -120,26 +120,27 @@ else
 #        an invocation of extract-xml-pages.xsl (which
 #        imports the former) must be run again.
 #
-make extract-xml-pages.xsl
-    :
-        docca/include/docca/extract-xml-pages.xsl
-    :
-        @copy_script
-    ;
+make extract-xml-pages.xsl      : docca/include/docca/extract-xml-pages.xsl      : @copy_script ;
+make base-extract-xml-pages.xsl : docca/include/docca/base-extract-xml-pages.xsl : @copy_script ;
+make stage1.xsl                 : docca/include/docca/stage1.xsl                 : @copy_script ;
+make stage2.xsl                 : docca/include/docca/stage2.xsl                 : @copy_script ;
+make assemble-quickbook.xsl     : docca/include/docca/assemble-quickbook.xsl     : @copy_script ;
 
-make base-extract-xml-pages.xsl
-    :
-        docca/include/docca/base-extract-xml-pages.xsl
-    :
-        @copy_script
-    ;
+# Beginning (failed) attempt to make all the xslt-visualizer code available
+#make xslt-visualizer : docca/include/xslt-visualizer : @copy_dir ;
+#
+#actions copy_dir
+#{
+#    cp -r $(2[1]) $(1)
+#}
 
-# Make a copy of the given XSLT file.
+# Make a copy of the given file.
 #
 actions copy_script
 {
     cp $(2[1]) $(1)
 }
+
 
 #-------------------------------------------------------------------------------
 #
@@ -150,14 +151,73 @@ make xml-pages.xml
     :
         index.xml
         extract-xml-pages.xsl
+
+        # Make bjam aware of additional dependencies
+        base-extract-xml-pages.xsl
     :
         saxonhe.saxonhe
     ;
 
+# This is just to make the directory eligible as a source
+make xml-pages : index.xml : @null_action ;
 
+# Not ready for prime time until I figure out how to get the xslt-visualizer code in place
+#make stage1/code-trace-enabled/stage1.xsl
+#    :
+#        stage1.xsl
+#        xslt-visualizer/xsl/trace-enable.xsl
+#    :
+#        saxonhe.saxonhe
+#    ;
 
+# This is to initially create the directory as a side effect; I'm sure there's a better way...
+make stage1/results/directory/placeholder : xml-pages.xml : @null_action ;
+make stage2/results/directory/placeholder : xml-pages.xml : @null_action ;
+
+# TODO: figure out why this (and the following stage) get built every time
+make stage1/results
+    :
+        xml-pages
+        stage1.xsl
+
+        # additional dependencies
+        xml-pages.xml
+    :
+        saxonhe.saxonhe
+    ;
+
+make stage2/results
+    :
+        stage1/results
+        stage2.xsl
+    :
+        saxonhe.saxonhe
+    ;
+
+make reference.qbk
+    :
+        xml-pages.xml
+        assemble-quickbook.xsl
+
+        # TODO: make this input to the XSLT somehow
+        #       rather than relying on it being hard-coded
+        #       in the XSLT (which it is!)
+        stage2/results
+    :
+        saxonhe.saxonhe
+    ;
+
+actions make_dir
+{
+    mkdir $(1)
+}
 
 make combine.xslt : index.xml : @null_action ;
+
+actions touch_file
+{
+    touch $(1) ;
+}
 
 actions null_action
 {
@@ -182,13 +242,13 @@ actions call-xsltproc
 # Produce the reference.qbk file by running
 # the reference xml through the transform.
 #
-make reference.qbk
-    :
-        reference.xml
-        transform.xsl
-    :
-        saxonhe.saxonhe
-    ;
+#make reference.qbk
+#    :
+#        reference.xml
+#        transform.xsl
+#    :
+#        saxonhe.saxonhe
+#    ;
 
 # We have to make a copy of reference.qbk and put it
 # in a place where the static .qbk files can find it
