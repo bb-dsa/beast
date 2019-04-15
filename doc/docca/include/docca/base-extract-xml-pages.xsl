@@ -9,6 +9,7 @@
   <!--
   <xsl:output indent="yes"/>
   -->
+  <xsl:include href="common.xsl"/>
 
   <xsl:key name="memberdefs-by-id" match="memberdef" use="@id"/>
 
@@ -178,9 +179,18 @@
 
                   <!-- Add the page ID to the top of both compound and member pages -->
                   <xsl:template mode="member-content-insert
-                                      compound-content-insert" match="/doxygen">
+                                      compound-content-insert" match="/doxygen" priority="1">
                     <xsl:param name="page-id" tunnel="yes"/>
                     <xsl:attribute name="d:page-id" select="$page-id"/>
+                    <xsl:next-match/>
+                  </xsl:template>
+
+                  <!-- Also add the page type -->
+                  <xsl:template mode="compound-content-insert" match="/doxygen">
+                    <xsl:attribute name="d:page-type" select="'compound'"/>
+                  </xsl:template>
+                  <xsl:template mode="member-content-insert" match="/doxygen">
+                    <xsl:attribute name="d:page-type" select="'member'"/>
                   </xsl:template>
 
                   <!-- TODO: refactor this rule -->
@@ -242,72 +252,5 @@
                           <xsl:template mode="find-target-element" match="member[@kind eq 'enumvalue']">
                             <xsl:sequence select="preceding-sibling::member[@kind eq 'enum'][1]"/>
                           </xsl:template>
-
-
-  <xsl:variable name="leading-ns-regex" select="'^([^:&lt;]+::)+'"/>
-
-  <xsl:function name="d:extract-ns-without-suffix">
-    <xsl:param name="name"/>
-    <xsl:sequence select="replace(d:extract-ns($name), '::$', '')"/>
-  </xsl:function>
-
-  <xsl:function name="d:extract-ns">
-    <xsl:param name="name"/>
-    <xsl:sequence select="replace($name, '('||$leading-ns-regex||').*', '$1')"/>
-  </xsl:function>
-
-  <!-- Strip all C++ namespace prefixes that come at the beginning -->
-  <xsl:function name="d:strip-ns">
-    <xsl:param name="name"/>
-    <xsl:sequence select="replace($name, $leading-ns-regex, '')"/>
-  </xsl:function>
-
-  <!-- Strip the common C++ namespace prefix for the docs as a whole -->
-  <!-- ASSUMPTION: $doc-ns is defined in the customizing stylesheet -->
-  <xsl:function name="d:strip-doc-ns">
-    <xsl:param name="name"/>
-    <xsl:sequence select="replace($name, '^'||$doc-ns||'::', '')"/>
-  </xsl:function>
-
-  <xsl:function name="d:make-id">
-    <xsl:param name="name"/>
-    <xsl:sequence select="d:make-id($name, $id-replacements)"/>
-  </xsl:function>
-
-  <xsl:function name="d:make-id">
-    <xsl:param name="name"/>
-    <xsl:param name="replacements"/>
-    <xsl:variable name="next" select="head($replacements)"/>
-    <xsl:variable name="rest" select="tail($replacements)"/>
-    <xsl:sequence select="if (exists($next))
-                          then d:make-id(replace($name, $next/@pattern, $next/@with), $rest)
-                          else $name"/>
-  </xsl:function>
-
-  <xsl:variable name="id-replacements" select="$additional-id-replacements, $base-id-replacements"/>
-
-  <!-- Can be overridden by a customizing stylesheet -->
-  <xsl:variable name="additional-id-replacements" as="element(replace)*" select="()"/>
-  <xsl:variable name="base-id-replacements" as="element(replace)+">
-    <replace pattern="^boost::system::" with=""/>  <!-- TODO: verify this is generic enough not to be in a custom stylesheet -->
-    <replace pattern="boost__posix_time__ptime" with="ptime"/>  <!-- TODO: verify this is correct; it smells... (the input looks already partially processed) -->
-    <replace pattern="::" with="__"/>
-    <replace pattern="="  with="_eq_"/>
-    <replace pattern="!"  with="_not_"/>
-    <replace pattern="->" with="_arrow_"/>
-    <replace pattern="&lt;" with="_lt_"/>
-    <replace pattern=">"    with="_gt_"/>
-    <replace pattern="^~" with="_dtor_"/>  <!-- destructor -->
-    <replace pattern="~" with="_"/>
-    <replace pattern="\[" with="_lb_"/>
-    <replace pattern="\]" with="_rb_"/>
-    <replace pattern="\(" with="_lp_"/>
-    <replace pattern="\)" with="_rp_"/>
-    <replace pattern="\+" with="_plus_"/>
-    <replace pattern="-" with="_minus_"/>
-    <replace pattern="\*" with="_star_"/>
-    <replace pattern="/" with="_slash_"/>
-    <replace pattern=" " with="_"/>
-  </xsl:variable>
 
 </xsl:stylesheet>

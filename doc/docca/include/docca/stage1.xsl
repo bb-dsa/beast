@@ -1,13 +1,11 @@
-<!-- Identity transform just as a placeholder for now -->
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  exclude-result-prefixes="xs">
+  exclude-result-prefixes="xs"
+  expand-text="yes">
 
-  <xsl:template match="@* | node()">
-    <xsl:copy>
-      <xsl:apply-templates mode="#current" select="@* | node()"/>
-    </xsl:copy>
-  </xsl:template>
+  <xsl:import href="base-stage1.xsl"/>
+
+  <xsl:include href="config.xsl"/>
 
 </xsl:stylesheet>

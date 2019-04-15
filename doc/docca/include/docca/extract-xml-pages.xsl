@@ -6,16 +6,7 @@
 
   <xsl:import href="base-extract-xml-pages.xsl"/>
 
-  <xsl:variable name="doc-ns" select="'boost::beast'"/>
-  <xsl:variable name="doc-ref" select="'beast.ref.'"/>
-
-  <xsl:variable name="additional-id-replacements" as="element(replace)*">
-    <replace pattern="boost::asio::error" with=""/>
-  </xsl:variable>
-
-  <xsl:function name="d:should-ignore-compound">
-    <xsl:param name="compound" as="element(compound)"/>
-    <xsl:sequence select="contains($compound/name, '::detail')"/>  <!-- TODO: Confirm this should be custom and not built-in behavior -->
-  </xsl:function>
+  <!-- TODO: consider refactoring to stage-specific configurations -->
+  <xsl:include href="config.xsl"/>
 
 </xsl:stylesheet>

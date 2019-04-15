@@ -8,7 +8,7 @@
   <xsl:output method="text"/>
 
   <xsl:template match="/">
-    [section:{/*/@d:page-id} {/*/@d:page-id}]
+    [section:{/page/@id} {/page/@id}]
 
     {(.//briefdescription)[1]}
 
