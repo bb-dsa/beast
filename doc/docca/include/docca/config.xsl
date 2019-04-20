@@ -12,18 +12,30 @@
     <replace pattern="boost::asio::error" with=""/>
   </xsl:variable>
 
+  <xsl:variable name="include-private-members" select="false()"/>
+
   <xsl:template mode="includes-template" match="location"
     >Defined in header [include_file {substring-after(@file, 'include/')}]
   </xsl:template>
 
   <xsl:function name="d:should-ignore-compound">
-    <xsl:param name="compound" as="element(compound)"/>
-    <xsl:sequence select="contains($compound/name, '::detail')"/>  <!-- TODO: Confirm this should be custom and not built-in behavior -->
+    <xsl:param name="element" as="element(compound)"/>
+    <xsl:sequence select="contains($element/name, '::detail')"/>  <!-- TODO: Confirm this should be custom and not built-in behavior -->
   </xsl:function>
 
   <xsl:function name="d:should-ignore-base">
-    <xsl:param name="basecompoundref" as="element(basecompoundref)"/>
-    <xsl:sequence select="contains($basecompoundref, '::detail')"/>  <!-- TODO: Confirm this should be custom and not built-in behavior -->
+    <xsl:param name="element" as="element(basecompoundref)"/>
+    <xsl:sequence select="contains($element, '::detail')"/>  <!-- TODO: Confirm this should be custom and not built-in behavior -->
+  </xsl:function>
+
+  <xsl:function name="d:should-ignore-inner-class">
+    <xsl:param name="element" as="element(innerclass)"/>
+    <xsl:sequence select="contains($element, '_handler')"/>
+  </xsl:function>
+
+  <xsl:function name="d:should-ignore-friend">
+    <xsl:param name="element" as="element(memberdef)"/>
+    <xsl:sequence select="contains($element, '_helper')"/>
   </xsl:function>
 
 </xsl:stylesheet>
