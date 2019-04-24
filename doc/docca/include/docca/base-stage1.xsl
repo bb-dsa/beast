@@ -140,18 +140,32 @@
                   </xsl:template>
 
 
+          <!-- Only output a table row for the first instance of each name (ignore overloads) -->
+          <xsl:template mode="table-row" match="memberdef[name = preceding-sibling::memberdef/name]"/>
           <xsl:template mode="table-row" match="*">
             <tr>
               <td>
-                <!-- TODO: make this a link (after attending to overloads) -->
-                <xsl:value-of select="d:member-name(.) ! d:strip-ns(.)"/>
+                <member-link to="{d:member-name(.) ! d:strip-ns(.)}"/>
               </td>
               <td>
-                <!-- TODO: populate this -->
+                <xsl:apply-templates mode="member-description" select="."/>
               </td>
             </tr>
           </xsl:template>
 
+                  <xsl:template mode="member-description" match="innerclass">
+                  </xsl:template>
+                  <xsl:template mode="member-description" match="memberdef">
+                    <xsl:apply-templates select="briefdescription"/>
+                    <!-- Pull in any overload descriptions but only if they vary -->
+                    <xsl:apply-templates select="following-sibling::memberdef[name eq current()/name]
+                                                /briefdescription[not(. eq current()/briefdescription)]"/>
+                  </xsl:template>
+
+
+  <xsl:template mode="section-body" match="detaileddescription">
+    <xsl:apply-templates/>
+  </xsl:template>
 
   <xsl:template mode="section-body" match="compounddef">
     <para>
