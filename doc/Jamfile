@@ -145,6 +145,9 @@ actions copy_script
 }
 
 
+# This is to initially create the directory as a side effect; I'm sure there's a better way...
+make xml-pages/directory/placeholder : index.xml : @null_action ;
+
 #-------------------------------------------------------------------------------
 #
 # Run index.xml through the first transformation stage
