@@ -6,9 +6,8 @@
   expand-text="yes">
 
   <!-- TODO: make sure this doesn't screw up any formatting -->
-  <!--
   <xsl:output indent="yes"/>
-  -->
+
   <xsl:include href="common.xsl"/>
 
   <xsl:key name="memberdefs-by-id" match="memberdef" use="@id"/>
