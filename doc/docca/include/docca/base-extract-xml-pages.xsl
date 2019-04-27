@@ -10,7 +10,9 @@
 
   <xsl:include href="common.xsl"/>
 
-  <xsl:key name="memberdefs-by-id" match="memberdef" use="@id"/>
+  <xsl:key name="visible-memberdefs-by-id"
+           match="memberdef[$include-private-members or not(@prot eq 'private')]"
+           use="@id"/>
 
   <xsl:key name="elements-by-refid" match="compound | member" use="@refid"/>
 
@@ -45,8 +47,23 @@
   <xsl:template match="compound[d:should-ignore-compound(.)]"/>
   <xsl:template match="compound">
     <!-- Load each input file only once -->
+    <xsl:variable name="source-doc" select="d:get-source-doc(.)"/>
+    <!-- Look up memberdefs (and constrain by visibility) only once -->
+    <xsl:variable name="memberdefs" select="key('visible-memberdefs-by-id', member/@refid, $source-doc)"/>
+    <!-- Create a filtered copy of members within their minimal context, listing only the visible ones -->
+    <xsl:variable name="visible-members" as="element(member)*">
+      <xsl:variable name="compound" as="element()">
+        <compound kind="{@kind}">
+          <name>{name}</name>
+          <xsl:copy-of select="member[@refid = $memberdefs/@id]"/>
+        </compound>
+      </xsl:variable>
+      <xsl:sequence select="$compound/member"/>
+    </xsl:variable>
     <xsl:apply-templates mode="create-page" select=".">
-      <xsl:with-param name="source-doc" select="d:get-source-doc(.)" tunnel="yes"/>
+      <xsl:with-param name="source-doc" select="$source-doc" tunnel="yes"/>
+      <xsl:with-param name="memberdefs" select="$memberdefs" tunnel="yes"/>
+      <xsl:with-param name="visible-members" select="$visible-members" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
 
@@ -61,8 +78,7 @@
     <xsl:apply-templates mode="child-pages" select="."/>
   </xsl:template>
   <xsl:template mode="create-page" match="compound[@kind = ('class','struct')]
-                                        | compound[@kind = ('class','struct','namespace')]/member
-                                                                                           [not(@kind eq 'enumvalue')]">
+                                        | compound/member">
     <xsl:variable name="page-id" as="xs:string">
       <xsl:apply-templates mode="page-id" select="."/>
     </xsl:variable>
@@ -78,9 +94,9 @@
 
           <!-- Create the member page for each child (or, if overloaded, the overload-list page) -->
           <xsl:template mode="child-pages" match="compound">
-            <xsl:variable name="compound" select="."/>
+            <xsl:param name="visible-members" tunnel="yes"/>
             <!-- Create a page for each unique member name -->
-            <xsl:for-each select="member[not(name = preceding-sibling::member/name)]">
+            <xsl:for-each select="$visible-members[not(name = preceding-sibling::member/name)]">
               <xsl:apply-templates mode="create-page" select=".">
                 <xsl:with-param name="is-overload-list-page" select="d:is-overloaded(.)" tunnel="yes"/>
               </xsl:apply-templates>
@@ -88,7 +104,7 @@
           </xsl:template>
 
           <!-- A member page doesn't have children, unless it is an overload-list page -->
-          <xsl:template mode="child-pages" match="member">
+          <xsl:template mode="child-pages" match="compound/member">
             <xsl:param name="is-overload-list-page" tunnel="yes"/>
             <xsl:if test="$is-overload-list-page">
               <xsl:apply-templates mode="create-page" select="d:overloaded-members(.)">
@@ -99,7 +115,7 @@
 
 
           <xsl:template mode="page-id" match="compound">{d:make-id(name)}</xsl:template>
-          <xsl:template mode="page-id" match="compound/member">
+          <xsl:template mode="page-id" match="member">
             <xsl:param name="is-overload-list-page" tunnel="yes"/>
             <xsl:value-of>
               <xsl:apply-templates mode="base-member-page-id" select="."/>
@@ -194,11 +210,12 @@
                   <xsl:template mode="list-page member-page" match="member" priority="2">
                     <xsl:param name="applicable-members" as="element(member)+" select="."/>
                     <xsl:param name="source-doc" tunnel="yes"/>
+                    <xsl:param name="memberdefs" tunnel="yes"/>
                     <xsl:apply-templates mode="#current" select="$source-doc">
                       <xsl:with-param name="target-memberdefs"
-                                      select="key('memberdefs-by-id', $applicable-members/@refid, $source-doc)"
+                                      select="$memberdefs[@id = $applicable-members/@refid]"
                                       tunnel="yes"/>
-                      <xsl:with-param name="member-in-index" select="." tunnel="yes"/>
+                      <xsl:with-param name="member" select="." tunnel="yes"/>
                     </xsl:apply-templates>
                   </xsl:template>
 
@@ -260,9 +277,10 @@
 
                   <!-- Also, if applicable, insert the overload position of this member -->
                   <xsl:template mode="member-page-insert" match="/doxygen" priority="1">
-                    <xsl:param name="member-in-index" tunnel="yes"/>
-                    <xsl:if test="d:is-overloaded($member-in-index)">
-                      <xsl:attribute name="d:overload-position" select="d:overload-position($member-in-index)"/>
+                    <xsl:param name="member" tunnel="yes"/>
+                    <xsl:if test="d:is-overloaded($member)">
+                      <xsl:attribute name="d:overload-position" select="d:overload-position($member)"/>
+                      <xsl:attribute name="d:overload-size" select="count(d:overloaded-members($member))"/>
                     </xsl:if>
                     <xsl:next-match/>
                   </xsl:template>
