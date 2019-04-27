@@ -6,7 +6,7 @@
   expand-text="yes">
 
   <xsl:variable name="doc-ns" select="'boost::beast'"/>
-  <xsl:variable name="doc-ref" select="'beast.ref.'"/>
+  <xsl:variable name="doc-ref" select="'beast.ref'"/>
 
   <xsl:variable name="additional-id-replacements" as="element(replace)*">
     <replace pattern="boost::asio::error" with=""/>
