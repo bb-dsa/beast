@@ -23,6 +23,26 @@
     <xsl:apply-templates select="compounddef"/>
   </xsl:template>
 
+  <xsl:template match="/doxygen[@d:page-type eq 'overload-list']">
+  </xsl:template>
+
+  <xsl:template mode="page-title" match="compounddef">{d:strip-doc-ns(compoundname)}</xsl:template>
+  <xsl:template mode="page-title" match="memberdef">
+    <xsl:value-of select="d:strip-doc-ns(/doxygen/compounddef/compoundname)"/>
+    <xsl:text>::</xsl:text>
+    <xsl:value-of select="name"/>
+    <xsl:apply-templates mode="overload-qualifier" select="/doxygen"/>
+  </xsl:template>
+
+          <xsl:template mode="overload-qualifier" match="*"/>
+          <xsl:template mode="overload-qualifier" match="/doxygen[@d:overload-position]">
+            <xsl:text> (</xsl:text>
+            <xsl:value-of select="@d:overload-position"/>
+            <xsl:text> of </xsl:text>
+            <xsl:value-of select="@d:overload-size"/>
+            <xsl:text> overloads)</xsl:text>
+          </xsl:template>
+
   <!-- For convenience, pre-calculate some member sequences and tunnel them through -->
   <xsl:template match="compounddef" priority="1">
     <xsl:next-match>
@@ -40,7 +60,9 @@
   <xsl:template match="compounddef">
     <xsl:param name="public-types" tunnel="yes"/>
     <xsl:param name="friends" tunnel="yes"/>
-    <title>{d:strip-doc-ns(compoundname)}</title>
+    <title>
+      <xsl:apply-templates mode="page-title" select="."/>
+    </title>
 
     <xsl:apply-templates select="briefdescription"/>
 
@@ -63,10 +85,17 @@
 
                                  sectiondef[@kind eq 'related'],
 
-                                 detaileddescription"/>
+                                 detaileddescription,
+
+                                 (: ASSUMPTION: simplesect and parameterlist only appear in a contiguous block at the end of detaileddescription :)
+                                 (: TODO: verify this is true, and, if not, change the implementation so it does whatever the right thing is :)
+                                 detaileddescription//(simplesect | parameterlist)"/>
 
     <!-- TODO: port "class-members" and "includes-foot" (from doxygen.xsl) here -->
   </xsl:template>
+
+  <!-- TODO: Should this be a custom rule or built-in? -->
+  <xsl:template mode="section" match="simplesect[matches(title,'Concepts:?')]"/>
 
   <xsl:template mode="section" match="*">
     <section>
@@ -79,6 +108,16 @@
 
   <xsl:template mode="section-heading" match="compounddef        ">Synopsis</xsl:template>
   <xsl:template mode="section-heading" match="detaileddescription">Description</xsl:template>
+
+  <xsl:template mode="section-heading" match="simplesect[@kind eq 'note'  ]">Remarks</xsl:template>
+  <xsl:template mode="section-heading" match="simplesect[@kind eq 'see'   ]">See Also</xsl:template>
+  <xsl:template mode="section-heading" match="simplesect[@kind eq 'return']">Return Value</xsl:template>
+  <xsl:template mode="section-heading" match="simplesect"                   >{title}</xsl:template>
+
+  <xsl:template mode="section-heading" match="parameterlist[@kind eq 'exception'    ]">Exceptions</xsl:template>
+  <xsl:template mode="section-heading" match="parameterlist[@kind eq 'templateparam']">Template Parameters</xsl:template>
+  <xsl:template mode="section-heading" match="parameterlist                          ">Parameters</xsl:template>
+
   <xsl:template mode="section-heading" match="innerclass
                                             | sectiondef[@kind eq 'public-type']">Types</xsl:template>
   <xsl:template mode="section-heading" match="sectiondef[@kind eq 'friend'     ]">Friends</xsl:template>
@@ -96,20 +135,52 @@
           <xsl:template mode="member-kind" match="@kind[ends-with(.,'func'  )]">Member Functions</xsl:template>
           <xsl:template mode="member-kind" match="@kind[ends-with(.,'attrib')]">Data Members</xsl:template>
 
+  <xsl:template mode="section-body" match="sectiondef | innerclass | parameterlist">
+    <table>
+      <tr>
+        <th>
+          <xsl:apply-templates mode="column-1-name" select="."/>
+        </th>
+        <th>
+          <xsl:apply-templates mode="column-2-name" select="."/>
+        </th>
+      </tr>
+      <xsl:apply-templates mode="table-body" select="."/>
+    </table>
+  </xsl:template>
 
-  <xsl:template mode="section-body" match="sectiondef | innerclass">
+          <xsl:template mode="column-1-name" match="*">Name</xsl:template>
+          <xsl:template mode="column-2-name" match="*">Description</xsl:template>
+
+          <xsl:template mode="column-1-name"
+                        match="parameterlist[@kind = ('exception','templateparam')]">Type</xsl:template>
+
+          <xsl:template mode="column-2-name" match="parameterlist[@kind eq 'exception']">Thrown On</xsl:template>
+
+
+  <xsl:template mode="table-body" match="parameterlist">
+    <xsl:apply-templates mode="parameter-row" select="parameteritem"/>
+  </xsl:template>
+
+          <xsl:template mode="parameter-row" match="parameteritem">
+            <tr>
+              <td>
+                <!-- ASSUMPTION: <parameternamelist> only ever has one <parametername> child -->
+                <xsl:apply-templates select="parameternamelist/parametername/node()"/>
+              </td>
+              <td>
+                <xsl:apply-templates select="parameterdescription/node()"/>
+              </td>
+            </tr>
+          </xsl:template>
+
+  <xsl:template mode="table-body" match="sectiondef | innerclass">
     <xsl:variable name="member-nodes" as="element()*">
       <xsl:apply-templates mode="member-nodes" select="."/>
     </xsl:variable>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-      <xsl:apply-templates mode="table-row" select="$member-nodes">
-        <xsl:sort select="d:member-name(.)"/>
-      </xsl:apply-templates>
-    </table>
+    <xsl:apply-templates mode="member-row" select="$member-nodes">
+      <xsl:sort select="d:member-name(.)"/>
+    </xsl:apply-templates>
   </xsl:template>
 
           <xsl:template mode="member-nodes" match="innerclass | sectiondef[@kind eq 'public-type']">
@@ -136,16 +207,16 @@
                     <xsl:sequence select="name"/>
                   </xsl:template>
                   <xsl:template mode="member-name" match="innerclass">
-                    <xsl:sequence select="."/>
+                    <xsl:sequence select="d:referenced-class/doxygen/compounddef/compoundname ! d:strip-ns(.)"/>
                   </xsl:template>
 
 
           <!-- Only output a table row for the first instance of each name (ignore overloads) -->
-          <xsl:template mode="table-row" match="memberdef[name = preceding-sibling::memberdef/name]"/>
-          <xsl:template mode="table-row" match="*">
+          <xsl:template mode="member-row" match="memberdef[name = preceding-sibling::memberdef/name]"/>
+          <xsl:template mode="member-row" match="*">
             <tr>
               <td>
-                <member-link to="{d:member-name(.) ! d:strip-ns(.)}"/>
+                <member-link to="{d:member-name(.)}"/>
               </td>
               <td>
                 <xsl:apply-templates mode="member-description" select="."/>
@@ -154,6 +225,7 @@
           </xsl:template>
 
                   <xsl:template mode="member-description" match="innerclass">
+                    <xsl:apply-templates select="d:referenced-class/doxygen/compounddef/briefdescription"/>
                   </xsl:template>
                   <xsl:template mode="member-description" match="memberdef">
                     <xsl:apply-templates select="briefdescription"/>
@@ -163,9 +235,14 @@
                   </xsl:template>
 
 
-  <xsl:template mode="section-body" match="detaileddescription">
+  <xsl:template mode="section-body" match="detaileddescription | simplesect">
     <xsl:apply-templates/>
   </xsl:template>
+
+          <!-- We are already processing these at the top level; don't duplicate their content -->
+          <xsl:template match="detaileddescription//simplesect
+                             | detaileddescription//parameterlist"/>
+
 
   <xsl:template mode="section-body" match="compounddef">
     <para>
@@ -217,6 +294,12 @@
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates mode="#current" select="@* | node()"/>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="memberdef">
+    <title>
+      <xsl:apply-templates mode="page-title" select="."/>
+    </title>
   </xsl:template>
 
 </xsl:stylesheet>
