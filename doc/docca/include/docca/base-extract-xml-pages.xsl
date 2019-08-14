@@ -312,47 +312,56 @@
                     </xsl:attribute>
                   </xsl:template>
 
+                          <xsl:function name="d:get-target-element" as="element()?"> <!-- to allow for partial builds -->
+                          <!--
                           <xsl:function name="d:get-target-element" as="element()">
+                          -->
                             <xsl:param name="ref" as="element()"/> <!-- <ref> or <innerclass> or... -->
                             <xsl:variable name="referenced-elements" select="key('elements-by-refid', $ref/@refid, $index-xml)"/>
-                            <xsl:choose>
-                              <!-- Handle the case where the referenced element appears two or more times in index.xml -->
-                              <!-- If there's no ambiguity, we're done! -->
-                              <xsl:when test="count($referenced-elements) eq 1">
-                                <xsl:apply-templates mode="find-target-element" select="$referenced-elements"/>
-                              </xsl:when>
-                              <xsl:otherwise>
-                                <!-- Otherwise, see if a namespace in the link text successfully disambiguates -->
-                                <xsl:variable name="qualified-reference" as="element()*">
-                                  <xsl:variable name="parent-in-link-text"
-                                                select="if (contains($ref,'::'))
-                                                        then d:extract-ns-without-suffix($ref)
-                                                        else ''"/>
-                                  <xsl:sequence select="$referenced-elements[ends-with(parent::compound/name, '::'||$parent-in-link-text)]"/>
-                                </xsl:variable>
-                                <xsl:choose>
-                                  <xsl:when test="count($qualified-reference) eq 1">
-                                    <xsl:apply-templates mode="find-target-element" select="$qualified-reference"/>
-                                  </xsl:when>
-                                  <xsl:otherwise>
-                                    <!-- Otherwise, favor the member that's in the same class or namespace as the current page -->
-                                    <xsl:variable name="sibling-reference" as="element()*">
-                                      <xsl:variable name="compound-for-current-page" select="$ref/(/doxygen/compounddef/compoundname/string())"/>
-                                      <xsl:sequence select="$referenced-elements[parent::compound/name eq $compound-for-current-page]"/>
-                                    </xsl:variable>
-                                    <xsl:choose>
-                                      <xsl:when test="count($sibling-reference) eq 1">
-                                        <xsl:apply-templates mode="find-target-element" select="$sibling-reference"/>
-                                      </xsl:when>
-                                      <!-- If all else fails, give up and just use the first one -->
-                                      <xsl:otherwise>
-                                        <xsl:apply-templates mode="find-target-element" select="$referenced-elements[1]"/>
-                                      </xsl:otherwise>
-                                    </xsl:choose>
-                                  </xsl:otherwise>
-                                </xsl:choose>
-                              </xsl:otherwise>
-                            </xsl:choose>
+                            <xsl:variable name="result" as="element()?">
+                              <xsl:choose>
+                                <!-- Handle the case where the referenced element appears two or more times in index.xml -->
+                                <!-- If there's no ambiguity, we're done! -->
+                                <xsl:when test="count($referenced-elements) eq 1">
+                                  <xsl:apply-templates mode="find-target-element" select="$referenced-elements"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                  <!-- Otherwise, see if a namespace in the link text successfully disambiguates -->
+                                  <xsl:variable name="qualified-reference" as="element()*">
+                                    <xsl:variable name="parent-in-link-text"
+                                                  select="if (contains($ref,'::'))
+                                                          then d:extract-ns-without-suffix($ref)
+                                                          else ''"/>
+                                    <xsl:sequence select="$referenced-elements[ends-with(parent::compound/name, '::'||$parent-in-link-text)]"/>
+                                  </xsl:variable>
+                                  <xsl:choose>
+                                    <xsl:when test="count($qualified-reference) eq 1">
+                                      <xsl:apply-templates mode="find-target-element" select="$qualified-reference"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                      <!-- Otherwise, favor the member that's in the same class or namespace as the current page -->
+                                      <xsl:variable name="sibling-reference" as="element()*">
+                                        <xsl:variable name="compound-for-current-page" select="$ref/(/doxygen/compounddef/compoundname/string())"/>
+                                        <xsl:sequence select="$referenced-elements[parent::compound/name eq $compound-for-current-page]"/>
+                                      </xsl:variable>
+                                      <xsl:choose>
+                                        <xsl:when test="count($sibling-reference) eq 1">
+                                          <xsl:apply-templates mode="find-target-element" select="$sibling-reference"/>
+                                        </xsl:when>
+                                        <!-- If all else fails, give up and just use the first one -->
+                                        <xsl:otherwise>
+                                          <xsl:apply-templates mode="find-target-element" select="$referenced-elements[1]"/>
+                                        </xsl:otherwise>
+                                      </xsl:choose>
+                                    </xsl:otherwise>
+                                  </xsl:choose>
+                                </xsl:otherwise>
+                              </xsl:choose>
+                            </xsl:variable>
+                            <xsl:if test="not($result)">
+                              <xsl:message>Unable to find referenced ID: <xsl:value-of select="$ref/@refid"/></xsl:message>
+                            </xsl:if>
+                            <xsl:sequence select="$result"/>
                           </xsl:function>
 
                                   <xsl:template mode="find-target-element" match="compound | member">
