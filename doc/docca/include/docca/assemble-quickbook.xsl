@@ -8,7 +8,7 @@
 
   <!-- TODO: remove this coupling; should be configured in the build file somehow
              (add support for Saxon parameter-passing in the build?) -->
-  <xsl:variable name="input-dir" select="'stage2/results'"/>
+  <xsl:param name="input-dir" select="'stage2/results'"/>
 
   <xsl:template match="page">
     <xsl:copy-of select="unparsed-text(concat($input-dir, '/', @href))"/>
