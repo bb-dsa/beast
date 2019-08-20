@@ -116,7 +116,7 @@
     <xsl:text>]</xsl:text>
   </xsl:template>
 
-  <xsl:template match="computeroutput">
+  <xsl:template match="computeroutput | code">
     <xsl:text>`</xsl:text>
     <xsl:apply-templates/>
     <xsl:text>`</xsl:text>

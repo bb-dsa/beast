@@ -173,8 +173,10 @@
           <xsl:template mode="parameter-row" match="parameteritem">
             <tr>
               <td>
-                <!-- ASSUMPTION: <parameternamelist> only ever has one <parametername> child -->
-                <xsl:apply-templates select="parameternamelist/parametername/node()"/>
+                <code>
+                  <!-- ASSUMPTION: <parameternamelist> only ever has one <parametername> child -->
+                  <xsl:apply-templates select="parameternamelist/parametername/node()"/>
+                </code>
               </td>
               <td>
                 <xsl:apply-templates select="parameterdescription/node()"/>
