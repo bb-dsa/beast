@@ -116,6 +116,24 @@
     <xsl:apply-templates/>
   </xsl:template>
 
+  <xsl:template match="sp">
+    <xsl:text> </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="programlisting">
+    <xsl:text>{$nl}</xsl:text>
+    <xsl:text>```</xsl:text>
+    <xsl:text>{$nl}</xsl:text>
+    <xsl:apply-templates/>
+    <xsl:text>```</xsl:text>
+    <xsl:text>{$nl}</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="codeline">
+    <xsl:apply-templates/>
+    <xsl:text>{$nl}</xsl:text>
+  </xsl:template>
+
   <xsl:function name="d:qb-escape">
     <xsl:param name="string"/>
     <xsl:sequence select="replace(
