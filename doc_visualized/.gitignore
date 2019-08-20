@@ -1,0 +1,22 @@
+# The "build" dir contains:
+#   * the Doxygen output,
+#   * the automatically-copied XSLT source code,
+#   * the intermediate Saxon-HE-based build results, and
+#   * the XSLT visualization results.
+build
+
+# Final HTML results of the doc_visualized build
+html
+
+# Copied automatically during setup from ../doc to support the final HTML build
+images
+qbk
+
+# A custom, pared-down index.xml file can be used to effect a partial build
+index.xml
+
+# A custom xml-pages.xml file can be used to retain previously-built reference pages in the final HTML
+xml-pages.xml
+
+# The final result of the last Saxon-HE-based build, used as input to the QuickBook->BoostBook->DocBook->HTML process
+reference.qbk

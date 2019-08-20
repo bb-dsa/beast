@@ -12,6 +12,8 @@
   <xsl:include href="config.xsl"/>
   <xsl:include href="emphasized-types.xsl"/>
 
+  <xsl:param name="DEBUG" select="false()"/>
+
   <xsl:variable name="list-indent-width" select="4"/>
 
   <xsl:variable name="nl" select="'&#xA;'"/>
@@ -135,6 +137,15 @@
 
           <xsl:template mode="list-item-label" match="itemizedlist">*</xsl:template>
           <xsl:template mode="list-item-label" match="orderedlist" >#</xsl:template>
+
+  <xsl:template match="para" priority="1">
+    <xsl:next-match/>
+    <xsl:if test=". is /page/div[1]/para[1] and $DEBUG">
+      <xsl:text>[@../../doc/html/beast/ref/{/page/@id}.html original_results] </xsl:text>
+      <xsl:text>[@../build/stage1_visualized/visualized/{/page/@id}.html stage1_visualized] </xsl:text>
+      <xsl:text>[@../build/stage2_visualized/visualized/{/page/@id}.html stage2_visualized] </xsl:text>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="para">
     <xsl:text>{$nl}</xsl:text>
