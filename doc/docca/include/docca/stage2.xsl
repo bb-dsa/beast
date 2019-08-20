@@ -147,7 +147,7 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="para">
+  <xsl:template match="para | div">
     <xsl:text>{$nl}</xsl:text>
     <xsl:apply-templates/>
   </xsl:template>
