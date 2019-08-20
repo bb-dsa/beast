@@ -1,3 +1,11 @@
+<!DOCTYPE xsl:stylesheet [
+<!-- TODO: complete this list -->
+<!ENTITY BLOCK_LEVEL_ELEMENT "itemizedlist
+                            | orderedlist
+                            | programlisting
+                            | para
+                            | table">
+]>
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -293,6 +301,13 @@
     <heading>
       <xsl:apply-templates/>
     </heading>
+  </xsl:template>
+
+  <!-- If a non-whitespace-only text node appears as a sibling of a block-level element, wrap it in a <para> -->
+  <xsl:template match="*[&BLOCK_LEVEL_ELEMENT;]/text()[normalize-space(.)]">
+    <para>
+      <xsl:copy-of select="."/>
+    </para>
   </xsl:template>
 
   <xsl:template mode="#default normalize-params" match="@* | node()">
