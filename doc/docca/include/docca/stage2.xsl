@@ -1,8 +1,8 @@
-<!-- This is just an initial placeholder/mockup for gettting a barebones build running -->
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:d="http://github.com/vinniefalco/docca"
+  xmlns:my="http://localhost"
   expand-text="yes">
 
   <xsl:output method="text"/>
@@ -10,6 +10,7 @@
   <xsl:import href="common.xsl"/>
 
   <xsl:include href="config.xsl"/>
+  <xsl:include href="emphasized-types.xsl"/>
 
   <xsl:variable name="list-indent-width" select="4"/>
 
@@ -42,7 +43,31 @@
     <xsl:text>{$nl}</xsl:text>
   </xsl:template>
 
-          <xsl:template mode="syntax" match="kind">{.} </xsl:template>
+          <!-- TODO: Should we consider not using a separate "syntax" mode, so we get other things "for free"
+                     like stripping of whitespace-only text nodes and link generation for inline <ref> elements? -->
+          <xsl:template mode="syntax" match="kind">{my:content(.)} </xsl:template>
+
+          <xsl:template mode="syntax" match="templateparamlist">
+            <xsl:text>template&lt;</xsl:text>
+            <xsl:text>{$nl}</xsl:text>
+            <xsl:apply-templates mode="syntax" select="param"/>
+            <xsl:text>></xsl:text>
+            <xsl:text>{$nl}</xsl:text>
+          </xsl:template>
+
+          <xsl:template mode="syntax" match="param">
+            <xsl:text>    </xsl:text>
+            <xsl:apply-templates mode="syntax" select="*"/>
+            <xsl:if test="following-sibling::param">,{$nl}</xsl:if>
+          </xsl:template>
+
+          <xsl:template mode="syntax" match="type">{my:content(.)}{' '}</xsl:template>
+          <xsl:template mode="syntax" match="declname[. = $emphasized-types]">__{translate(.,'_','')}__</xsl:template>
+          <xsl:template mode="syntax" match="declname">{my:content(.)}</xsl:template>
+          <xsl:template mode="syntax" match="defval"> = {my:content(.)}</xsl:template>
+
+
+  <xsl:template mode="#all" match="ERROR">[role red error.{@message}]</xsl:template>
 
   <xsl:template match="table">
     <xsl:text>{$nl}</xsl:text>
@@ -144,6 +169,12 @@
                             '\]',
                             '\\]'
                           )"/>
+  </xsl:function>
+
+  <!-- Convenience function for processing child nodes in the default mode -->
+  <xsl:function name="my:content">
+    <xsl:param name="sequence"/>
+    <xsl:apply-templates select="$sequence/node()"/>
   </xsl:function>
 
 </xsl:stylesheet>

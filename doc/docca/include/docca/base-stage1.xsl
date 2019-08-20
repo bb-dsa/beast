@@ -253,8 +253,8 @@
       <xsl:apply-templates mode="includes-template" select="location"/>
     </para>
     -->
-    <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
     <compound>
+      <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <kind>{@kind}</kind>
       <name>{d:strip-ns(compoundname)}</name>
       <xsl:for-each select="basecompoundref[not(d:should-ignore-base(.))]">
@@ -267,12 +267,17 @@
   </xsl:template>
 
           <!-- TODO: make sure this is robust and handles all the possible cases well -->
-          <xsl:template mode="normalize-params" match="templateparamlist/param[not(declname)]">
-            <param>
-              <type>{    substring-before(type,' ')}</type>
-              <declname>{substring-after (type,' ')}</declname>
-            </param>
+          <xsl:template mode="normalize-params" match="templateparamlist/param/type[not(../declname)]
+                                                                                   [starts-with(.,'class ')]"
+                                                priority="1">
+            <type>{    substring-before(.,' ')}</type>
+            <declname>{substring-after (.,' ')}</declname>
           </xsl:template>
+
+          <xsl:template mode="normalize-params" match="templateparamlist/param/type[not(../declname)]">
+            <ERROR message="param neither has declname nor 'class ' prefix in the type"/>
+          </xsl:template>
+
           <xsl:template mode="normalize-params" match="templateparamlist/param/defname"/>
 
           <!-- We only need to keep the @file attribute -->
