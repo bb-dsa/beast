@@ -134,6 +134,9 @@
     <xsl:text>{$nl}</xsl:text>
   </xsl:template>
 
+  <!-- Ignore whitespace-only text nodes -->
+  <xsl:template match="text()[not(normalize-space())]"/>
+
   <xsl:function name="d:qb-escape">
     <xsl:param name="string"/>
     <xsl:sequence select="replace(
