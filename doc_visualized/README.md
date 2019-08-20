@@ -7,17 +7,17 @@ The bash scripts in this directory are here for two main purposes:
 The Boost.Build-based Jamfile in the regular "doc" build is sufficient to build all of the HTML
 docs using the new XSLT code. It has several phases of processing, each using Saxon-HE:
 
- 1. extract-xml-pages.xsl:
+ 1. **extract-xml-pages.xsl**:
     Generate XML page source files, discovered using Doxygen's index.xml.
     This yields a subset of Doxygen's output for each page, gathering together just the info
     needed for that page (along with some annotations like link refids), but otherwise leaving its
     Doxygen-based format unchanged.
- 2. stage1.xsl:
+ 2. **stage1.xsl**:
     Transform each Doxygen-style XML page into a simpler XML page format tailored towards the
     structure and features of the HTML page it will eventually produce.
- 3. stage2.xsl:
+ 3. **stage2.xsl**:
     Transform each tailored XML page into QuickBook format.
- 4. assemble-quickbook.xsl:
+ 4. **assemble-quickbook.xsl**:
     Gather together all the individual Quickbook-formatted results into a single reference.qbk file,
     which is used by the rest of the build to weave them into the QuickBook->BoostBook->DocBook->HTML process.
 
