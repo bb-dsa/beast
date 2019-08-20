@@ -4,6 +4,8 @@
   xmlns:d="http://github.com/vinniefalco/docca"
   exclude-result-prefixes="xs d">
 
+  <xsl:variable name="nl" select="'&#xA;'"/>
+
   <xsl:variable name="leading-ns-regex" select="'^([^:&lt;]+::)+'"/>
 
   <xsl:function name="d:extract-ns-without-suffix">

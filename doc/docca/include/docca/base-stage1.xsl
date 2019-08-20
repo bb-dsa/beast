@@ -99,7 +99,13 @@
                                  (: TODO: verify this is true, and, if not, change the implementation so it does whatever the right thing is :)
                                  detaileddescription//(simplesect | parameterlist)"/>
 
-    <!-- TODO: port "class-members" and "includes-foot" (from doxygen.xsl) here -->
+    <!-- TODO: port "class-members" (from doxygen.xsl) here -->
+
+    <para>
+      <footer>
+        <xsl:apply-templates select="location"/>
+      </footer>
+    </para>
   </xsl:template>
 
   <!-- TODO: Should this be a custom rule or built-in? -->

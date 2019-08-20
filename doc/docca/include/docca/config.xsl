@@ -18,6 +18,24 @@
     >Defined in header [include_file {substring-after(@file, 'include/')}]
   </xsl:template>
 
+  <xsl:template mode="includes-footer" match="location">
+    <xsl:variable name="convenience-header" as="xs:string?">
+      <xsl:apply-templates mode="convenience-header" select="@file"/>
+    </xsl:variable>
+    <xsl:if test="$convenience-header">
+      <xsl:text>{$nl}</xsl:text>
+      <xsl:text>Convenience header [include_file boost/beast/{$convenience-header}]</xsl:text>
+      <xsl:text>{$nl}</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+          <xsl:template mode="convenience-header" match="@file[contains(., 'boost/beast/core')]"     >core.hpp</xsl:template>
+          <xsl:template mode="convenience-header" match="@file[contains(., 'boost/beast/http')]"     >http.hpp</xsl:template>
+          <xsl:template mode="convenience-header" match="@file[contains(., 'boost/beast/ssl')]"      >ssl.hpp</xsl:template>
+          <xsl:template mode="convenience-header" match="@file[contains(., 'boost/beast/websocket')]">websocket.hpp</xsl:template>
+          <xsl:template mode="convenience-header" match="@file[contains(., 'boost/beast/zlib')]"     >zlib.hpp</xsl:template>
+          <xsl:template mode="convenience-header" match="@file"/>
+
   <xsl:function name="d:should-ignore-compound">
     <xsl:param name="element" as="element(compound)"/>
     <xsl:sequence select="contains($element/name, '::detail')"/>  <!-- TODO: Confirm this should be custom and not built-in behavior -->

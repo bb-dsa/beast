@@ -16,8 +16,6 @@
 
   <xsl:variable name="list-indent-width" select="4"/>
 
-  <xsl:variable name="nl" select="'&#xA;'"/>
-
   <xsl:template match="/page">
     <xsl:text>{$nl}</xsl:text>
     <xsl:text>[section:{@id} {d:qb-escape(title)}]</xsl:text>
@@ -31,6 +29,10 @@
 
   <xsl:template match="location">
     <xsl:apply-templates mode="includes-template" select="."/>
+  </xsl:template>
+
+  <xsl:template match="footer/location">
+    <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
   <!-- TODO: make this work for more complex examples (e.g. with template parameters) -->
