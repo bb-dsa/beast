@@ -151,7 +151,7 @@
   <xsl:template match="para" priority="1">
     <xsl:next-match/>
     <xsl:if test=". is /page/div[1]/para[1] and $DEBUG">
-      <xsl:text>[@../../doc/html/beast/ref/{/page/@id}.html original_results] </xsl:text>
+      <xsl:text>[@../../doc/html/beast/ref/{translate(/page/@id,'.','/')}.html original_results] </xsl:text>
       <xsl:text>[@../build/stage1_visualized/visualized/{/page/@id}.html stage1_visualized] </xsl:text>
       <xsl:text>[@../build/stage2_visualized/visualized/{/page/@id}.html stage2_visualized] </xsl:text>
     </xsl:if>
