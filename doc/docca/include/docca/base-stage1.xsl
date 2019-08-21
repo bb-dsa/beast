@@ -45,6 +45,7 @@
   </xsl:template>
 
   <xsl:template match="/doxygen[@d:page-type eq 'overload-list']">
+    <xsl:apply-templates select="(compounddef/sectiondef/memberdef)[1]"/>
   </xsl:template>
 
   <xsl:template mode="page-title" match="compounddef">{d:strip-doc-ns(compoundname)}</xsl:template>
@@ -121,9 +122,23 @@
     <title>
       <xsl:apply-templates mode="page-title" select="."/>
     </title>
-    <xsl:apply-templates select="briefdescription"/>
-    <xsl:apply-templates mode="section" select="., detaileddescription"/>
+    <xsl:apply-templates mode="memberdef-page-content" select="."/>
   </xsl:template>
+
+          <xsl:template mode="memberdef-page-content" match="memberdef">
+            <xsl:apply-templates select="briefdescription"/>
+            <xsl:apply-templates mode="section" select="., detaileddescription"/>
+          </xsl:template>
+
+          <xsl:template mode="memberdef-page-content" match="memberdef[/doxygen/@d:page-type eq 'overload-list']">
+            <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
+          </xsl:template>
+
+
+  <xsl:template mode="overload-list" match="memberdef">
+    <xsl:apply-templates select="briefdescription"/>
+  </xsl:template>
+
 
   <!-- TODO: Should this be a custom rule or built-in? -->
   <xsl:template mode="section" match="simplesect[matches(title,'Concepts:?')]"/>
