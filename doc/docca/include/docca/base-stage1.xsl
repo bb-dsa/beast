@@ -134,11 +134,36 @@
             <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
           </xsl:template>
 
+                  <xsl:template mode="overload-list" match="memberdef">
+                    <xsl:apply-templates select="briefdescription[not(. = preceding-sibling::*/briefdescription)]"/>
+                    <overloaded-member>
+                      <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
+                      <xsl:apply-templates mode="modifier" select="(@explicit, @friend, @static)[. eq 'yes'],
+                                                                   @virt[. eq 'virtual']"/>
+                      <xsl:apply-templates select="type"/>
+                      <member-link to="{@d:page-id}" display="{name}"/>
+                      <xsl:apply-templates select="param"/>
+                      <member-link to="{@d:page-id}" display="more..."/>
+                    </overloaded-member>
+                  </xsl:template>
 
-  <xsl:template mode="overload-list" match="memberdef">
-    <xsl:apply-templates select="briefdescription"/>
+                          <xsl:template mode="modifier" match="@*">
+                            <modifier>{local-name(.)}</modifier>
+                          </xsl:template>
+                          <xsl:template mode="modifier" match="@virt">
+                            <modifier>virtual</modifier>
+                          </xsl:template>
+
+
+  <!-- TODO: implement "cleanup-type" from the original doxygen.xsl -->
+  <xsl:template match="type[normalize-space(.)]">
+    <xsl:next-match/>
   </xsl:template>
 
+  <!-- TODO: implement param normalization; see "cleanup-param", etc. -->
+  <xsl:template match="param">
+    <xsl:next-match/>
+  </xsl:template>
 
   <!-- TODO: Should this be a custom rule or built-in? -->
   <xsl:template mode="section" match="simplesect[matches(title,'Concepts:?')]"/>
@@ -313,18 +338,13 @@
     </compound>
   </xsl:template>
 
+  <!-- TODO: finish implementing this; consider different elements for <enum>, <function>, etc. -->
   <xsl:template mode="section-body" match="memberdef">
     <xsl:apply-templates mode="includes-header" select="."/>
     <member>
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <kind>{@kind}</kind>
-      <name>{d:strip-ns(compoundname)}</name>
-      <xsl:for-each select="basecompoundref[not(d:should-ignore-base(.))]">
-        <base>
-          <prot>{@prot}</prot>
-          <name>{d:strip-doc-ns(.)}</name>
-        </base>
-      </xsl:for-each>
+      <name>{name}</name>
     </member>
   </xsl:template>
 
@@ -358,7 +378,8 @@
   </xsl:template>
 
   <!-- TODO: check both of these rules; I don't think they're correct yet, e.g. w.r.t. namespace memberdefs -->
-  <xsl:template mode="includes-header" match="compounddef | memberdef[/doxygen/@d:overload-position]">
+  <xsl:template mode="includes-header" match="compounddef | memberdef[@kind eq 'friend']
+                                                          | memberdef[/doxygen/@d:overload-position]">
     <para>
       <xsl:apply-templates select="location"/>
     </para>

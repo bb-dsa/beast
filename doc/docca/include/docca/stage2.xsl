@@ -44,7 +44,7 @@
   </xsl:template>
 
   <!-- TODO: make this work for more complex examples (e.g. with template parameters) -->
-  <xsl:template match="compound">
+  <xsl:template match="compound | member | overloaded-member">
     <!-- Working around apparent Saxon bug?? It complains when I merge the consecutive <xsl:text> instructions into one -->
     <xsl:text>{$nl}</xsl:text>
     <xsl:text>```</xsl:text>
@@ -112,6 +112,8 @@
                     <xsl:text>{$nl}    ]</xsl:text>
                   </xsl:template>
 
+  <xsl:template match="member-link[@display]"
+                                   >[link {$doc-ref}.{/page/@id}.{d:make-id(@to)} [{d:qb-escape(@display)}]]</xsl:template>
   <xsl:template match="member-link">[link {$doc-ref}.{/page/@id}.{d:make-id(@to)} [*{d:qb-escape(@to)}]]</xsl:template>
 
   <xsl:template match="emphasis">

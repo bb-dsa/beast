@@ -197,7 +197,7 @@
               <xsl:when test="$is-overload-list-page">
                 <!-- For the overload list page, include the content for every like-named member -->
                 <xsl:apply-templates mode="list-page" select=".">
-                  <xsl:with-param name="applicable-members" select="d:overloaded-members(.)"/>
+                  <xsl:with-param name="applicable-members" select="d:overloaded-members(.)" tunnel="yes"/>
                 </xsl:apply-templates>
               </xsl:when>
               <xsl:otherwise>
@@ -208,7 +208,7 @@
           </xsl:template>
 
                   <xsl:template mode="list-page member-page" match="member" priority="2">
-                    <xsl:param name="applicable-members" as="element(member)+" select="."/>
+                    <xsl:param name="applicable-members" as="element(member)+" select="." tunnel="yes"/>
                     <xsl:param name="source-doc" tunnel="yes"/>
                     <xsl:param name="memberdefs" tunnel="yes"/>
                     <xsl:apply-templates mode="#current" select="$source-doc">
@@ -294,6 +294,18 @@
                   </xsl:template>
                   <xsl:template mode="list-page-insert" match="/doxygen">
                     <xsl:attribute name="d:page-type" select="'overload-list'"/>
+                  </xsl:template>
+
+                  <!-- For overload-list pages, include the page id for each member -->
+                  <xsl:template mode="list-page-insert" match="memberdef">
+                    <xsl:param name="applicable-members" tunnel="yes"/>
+                    <xsl:variable name="this-id" select="@id"/>
+                    <xsl:variable name="original-member" select="$applicable-members[@refid eq $this-id]"/>
+                    <xsl:attribute name="d:page-id">
+                      <xsl:apply-templates mode="page-id" select="$original-member">
+                        <xsl:with-param name="is-overload-list-page" select="false()" tunnel="yes"/>
+                      </xsl:apply-templates>
+                    </xsl:attribute>
                   </xsl:template>
 
                   <!-- For public innerclasses, insert the referenced class inline -->
