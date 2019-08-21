@@ -106,16 +106,23 @@
 
                                  sectiondef[@kind eq 'related'],
 
-                                 detaileddescription,
+                                 detaileddescription
+                                 (:,
 
                                  (: ASSUMPTION: simplesect and parameterlist only appear in a contiguous block at the end of detaileddescription :)
                                  (: TODO: verify this is true, and, if not, change the implementation so it does whatever the right thing is :)
-                                 detaileddescription//(simplesect | parameterlist)"/>
-    <para>
-      <footer>
-        <xsl:apply-templates select="location"/>
-      </footer>
-    </para>
+                                 detaileddescription//(simplesect | parameterlist)
+                                 :)
+                                 "/>
+    <xsl:apply-templates mode="includes-footer"/>
+  </xsl:template>
+
+  <xsl:template match="memberdef">
+    <title>
+      <xsl:apply-templates mode="page-title" select="."/>
+    </title>
+    <xsl:apply-templates select="briefdescription"/>
+    <xsl:apply-templates mode="section" select="., detaileddescription"/>
   </xsl:template>
 
   <!-- TODO: Should this be a custom rule or built-in? -->
@@ -130,7 +137,12 @@
     </section>
   </xsl:template>
 
-  <xsl:template mode="section-heading" match="compounddef        ">Synopsis</xsl:template>
+  <xsl:template match="simplesect | parameterlist">
+    <xsl:apply-templates mode="section" select="."/>
+  </xsl:template>
+
+  <xsl:template mode="section-heading" match="memberdef |
+                                              compounddef        ">Synopsis</xsl:template>
   <xsl:template mode="section-heading" match="detaileddescription">Description</xsl:template>
 
   <xsl:template mode="section-heading" match="simplesect[@kind eq 'note'  ]">Remarks</xsl:template>
@@ -266,19 +278,13 @@
   </xsl:template>
 
           <!-- We are already processing these at the top level; don't duplicate their content -->
+          <!--
           <xsl:template match="detaileddescription//simplesect
                              | detaileddescription//parameterlist"/>
-
+                             -->
 
   <xsl:template mode="section-body" match="compounddef">
-    <para>
-      <xsl:apply-templates select="location"/>
-    </para>
-    <!-- Do in final stage instead
-    <para>
-      <xsl:apply-templates mode="includes-template" select="location"/>
-    </para>
-    -->
+    <xsl:apply-templates mode="includes-header" select="."/>
     <compound>
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <kind>{@kind}</kind>
@@ -290,6 +296,21 @@
         </base>
       </xsl:for-each>
     </compound>
+  </xsl:template>
+
+  <xsl:template mode="section-body" match="memberdef">
+    <xsl:apply-templates mode="includes-header" select="."/>
+    <member>
+      <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
+      <kind>{@kind}</kind>
+      <name>{d:strip-ns(compoundname)}</name>
+      <xsl:for-each select="basecompoundref[not(d:should-ignore-base(.))]">
+        <base>
+          <prot>{@prot}</prot>
+          <name>{d:strip-doc-ns(.)}</name>
+        </base>
+      </xsl:for-each>
+    </member>
   </xsl:template>
 
           <!-- TODO: make sure this is robust and handles all the possible cases well -->
@@ -321,6 +342,22 @@
     </heading>
   </xsl:template>
 
+  <!-- TODO: check both of these rules; I don't think they're correct yet, e.g. w.r.t. namespace memberdefs -->
+  <xsl:template mode="includes-header" match="compounddef | memberdef[/doxygen/@d:overload-position]">
+    <para>
+      <xsl:apply-templates select="location"/>
+    </para>
+  </xsl:template>
+
+  <xsl:template mode="includes-footer" match="compounddef | memberdef[@kind eq 'friend']
+                                                          | memberdef[/doxygen/@d:overload-position]">
+    <para>
+      <footer>
+        <xsl:apply-templates select="location"/>
+      </footer>
+    </para>
+  </xsl:template>
+
   <!-- If a non-whitespace-only text node appears as a sibling of a block-level element, wrap it in a <para> -->
   <xsl:template match="*[&BLOCK_LEVEL_ELEMENT;]/text()[normalize-space(.)]">
     <para>
@@ -332,13 +369,6 @@
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates mode="#current" select="@* | node()"/>
     </xsl:copy>
-  </xsl:template>
-
-  <xsl:template match="memberdef">
-    <title>
-      <xsl:apply-templates mode="page-title" select="."/>
-    </title>
-    <xsl:apply-templates select="briefdescription"/>
   </xsl:template>
 
 </xsl:stylesheet>
