@@ -18,10 +18,23 @@
   <xsl:output indent="yes"/>
 
   <xsl:template match="/doxygen" priority="1">
-    <page id="{@d:page-id}">
+    <xsl:variable name="section-name">
+      <xsl:apply-templates mode="section-name" select="."/>
+    </xsl:variable>
+    <page id="{@d:page-id}" type="{@d:page-type}" section-name="{$section-name}">
+      <xsl:apply-templates mode="index-parent-att" select="."/>
       <xsl:next-match/>
     </page>
   </xsl:template>
+
+          <xsl:template mode="section-name" match="doxygen[@d:page-type eq 'compound']">{@d:page-id}</xsl:template>
+          <xsl:template mode="section-name" match="doxygen[@d:overload-position]"      >overload{@d:overload-position}</xsl:template>
+          <xsl:template mode="section-name" match="doxygen"                            >{(compounddef/sectiondef/memberdef/name)[1]}</xsl:template>
+
+          <xsl:template mode="index-parent-att" match="doxygen[@d:page-type eq 'compound' or @d:overload-position]"/>
+          <xsl:template mode="index-parent-att" match="doxygen">
+            <xsl:attribute name="index-parent" select="d:strip-doc-ns(compounddef/compoundname)"/>
+          </xsl:template>
 
   <xsl:template match="/doxygen[@d:page-type eq 'member']">
     <xsl:apply-templates select="compounddef/sectiondef/memberdef"/> <!-- should just be one -->
@@ -98,9 +111,6 @@
                                  (: ASSUMPTION: simplesect and parameterlist only appear in a contiguous block at the end of detaileddescription :)
                                  (: TODO: verify this is true, and, if not, change the implementation so it does whatever the right thing is :)
                                  detaileddescription//(simplesect | parameterlist)"/>
-
-    <!-- TODO: port "class-members" (from doxygen.xsl) here -->
-
     <para>
       <footer>
         <xsl:apply-templates select="location"/>
@@ -328,6 +338,7 @@
     <title>
       <xsl:apply-templates mode="page-title" select="."/>
     </title>
+    <xsl:apply-templates select="briefdescription"/>
   </xsl:template>
 
 </xsl:stylesheet>

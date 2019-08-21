@@ -18,9 +18,17 @@
 
   <xsl:template match="/page">
     <xsl:text>{$nl}</xsl:text>
-    <xsl:text>[section:{@id} {d:qb-escape(title)}]</xsl:text>
+    <xsl:text>[section:{@section-name} {d:qb-escape(title)}]</xsl:text>
+    <xsl:apply-templates mode="indexterm" select="."/>
     <xsl:apply-templates/>
   </xsl:template>
+
+          <xsl:template mode="indexterm" match="page"/>
+          <xsl:template mode="indexterm" match="page[@index-parent]">
+            <xsl:text>{$nl}</xsl:text>
+            <xsl:text>[indexterm2 {d:qb-escape(@section-name)}..{d:qb-escape(@index-parent)}]</xsl:text>
+            <xsl:text>{$nl}</xsl:text>
+          </xsl:template>
 
   <!-- Title is already included in section header -->
   <xsl:template match="/page/title"/>
