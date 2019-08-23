@@ -21,7 +21,7 @@
     <xsl:variable name="section-name">
       <xsl:apply-templates mode="section-name" select="."/>
     </xsl:variable>
-    <page id="{@d:page-id}" type="{@d:page-type}" section-name="{$section-name}">
+    <page id="{@d:page-id}" type="{@d:page-type}" section-name="{$section-name}" section-id="{d:make-id($section-name)}">
       <xsl:apply-templates mode="index-parent-att" select="."/>
       <xsl:next-match/>
     </page>

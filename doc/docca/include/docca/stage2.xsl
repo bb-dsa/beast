@@ -18,7 +18,7 @@
 
   <xsl:template mode="before" match="/page">
     <xsl:text>{$nl}</xsl:text>
-    <xsl:text>[section:{@section-name} {d:qb-escape(title)}]</xsl:text>
+    <xsl:text>[section:{@section-id} {d:qb-escape(title)}]</xsl:text>
     <xsl:apply-templates mode="indexterm" select="."/>
   </xsl:template>
 
