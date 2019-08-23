@@ -405,6 +405,10 @@
     </para>
   </xsl:template>
 
+  <!-- By default, don't output an includes header or footer -->
+  <xsl:template mode="includes-header
+                      includes-footer" match="*"/>
+
   <!-- If a non-whitespace-only text node appears as a sibling of a block-level element, wrap it in a <para> -->
   <xsl:template match="*[&BLOCK_LEVEL_ELEMENT;]/text()[normalize-space(.)]">
     <para>
