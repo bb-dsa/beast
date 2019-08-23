@@ -16,19 +16,15 @@
 
   <xsl:variable name="list-indent-width" select="4"/>
 
-  <xsl:template match="/page">
+  <xsl:template mode="before" match="/page">
     <xsl:text>{$nl}</xsl:text>
     <xsl:text>[section:{@section-name} {d:qb-escape(title)}]</xsl:text>
     <xsl:apply-templates mode="indexterm" select="."/>
-    <xsl:apply-templates/>
   </xsl:template>
 
           <xsl:template mode="indexterm" match="page"/>
-          <xsl:template mode="indexterm" match="page[@index-parent]">
-            <xsl:text>{$nl}</xsl:text>
-            <xsl:text>[indexterm2 {d:qb-escape(@section-name)}..{d:qb-escape(@index-parent)}]</xsl:text>
-            <xsl:text>{$nl}</xsl:text>
-          </xsl:template>
+          <xsl:template mode="indexterm" match="page[@index-parent]"
+            >{$nl}[indexterm2 {d:qb-escape(@section-name)}..{d:qb-escape(@index-parent)}]{$nl}</xsl:template>
 
   <!-- Title is already included in section header -->
   <xsl:template match="/page/title"/>
@@ -43,96 +39,59 @@
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
-  <!-- TODO: make this work for more complex examples (e.g. with template parameters) -->
-  <xsl:template match="compound | member | overloaded-member">
-    <!-- Working around apparent Saxon bug?? It complains when I merge the consecutive <xsl:text> instructions into one -->
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:text>```</xsl:text>
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:apply-templates mode="syntax" select="*"/>
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:text>```</xsl:text>
-    <xsl:text>{$nl}</xsl:text>
-  </xsl:template>
+  <xsl:template mode="before" match="compound | member | overloaded-members">&#xA;```&#xA;</xsl:template>
+  <xsl:template mode="after"  match="compound | member | overloaded-members">&#xA;```&#xA;</xsl:template>
 
-          <!-- TODO: Should we consider not using a separate "syntax" mode, so we get other things "for free"
-                     like stripping of whitespace-only text nodes and link generation for inline <ref> elements? -->
-          <xsl:template mode="syntax" match="kind">{my:content(.)} </xsl:template>
+  <!-- We're using the above workaround, because the following runs afoul of https://saxonica.plan.io/issues/4208 (fixed in Saxon 9.9.1.3)
+  <xsl:template mode="before
+                      after" match="compound | member | overloaded-members">{$nl}```{$nl}</xsl:template>
+  -->
 
-          <xsl:template mode="syntax" match="templateparamlist">
-            <xsl:text>template&lt;</xsl:text>
-            <xsl:text>{$nl}</xsl:text>
-            <xsl:apply-templates mode="syntax" select="param"/>
-            <xsl:text>></xsl:text>
-            <xsl:text>{$nl}</xsl:text>
-          </xsl:template>
+  <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 
-          <xsl:template mode="syntax" match="param">
-            <xsl:text>    </xsl:text>
-            <xsl:apply-templates mode="syntax" select="*"/>
-            <xsl:if test="following-sibling::param">,{$nl}</xsl:if>
-          </xsl:template>
+  <xsl:template mode="before" match="templateparamlist">template&lt;{$nl}</xsl:template>
+  <xsl:template mode="after"  match="templateparamlist">>{$nl}</xsl:template>
 
-          <xsl:template mode="syntax" match="type">{my:content(.)}{' '}</xsl:template>
-          <xsl:template mode="syntax" match="declname[. = $emphasized-types]">__{translate(.,'_','')}__</xsl:template>
-          <xsl:template mode="syntax" match="declname">{my:content(.)}</xsl:template>
-          <xsl:template mode="syntax" match="defval"> = {my:content(.)}</xsl:template>
+  <xsl:template mode="before" match="templateparamlist/param">{'    '}</xsl:template>
+  <xsl:template mode="after"  match="templateparamlist/param[position() ne last()]">,{$nl}</xsl:template>
+
+  <xsl:template mode="after" match="templateparamlist/param/type">{' '}</xsl:template>
+
+  <xsl:template match="templateparamlist/param/declname[. = $emphasized-template-parameter-types]"
+    >__{translate(.,'_','')}__</xsl:template>
+
+  <xsl:template mode="before" match="defval"> = </xsl:template>
+
+  <xsl:template mode="after" match="modifier">{$nl}</xsl:template>
 
 
   <xsl:template mode="#all" match="ERROR">[role red error.{@message}]</xsl:template>
 
-  <xsl:template match="table">
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:text>[table </xsl:text>
-    <xsl:apply-templates select="tr"/>
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:text>]</xsl:text>
-  </xsl:template>
+  <xsl:template mode="before" match="table">{$nl}[table </xsl:template>
+  <xsl:template mode="after"  match="table">{$nl}]</xsl:template>
 
-          <!-- ASSUMPTION: table rows have either <th> or <td>, not both -->
-          <xsl:template match="tr[th]">
-            <xsl:text>[</xsl:text>
-            <xsl:apply-templates select="th"/>
-            <xsl:text>]</xsl:text>
-          </xsl:template>
+  <!-- ASSUMPTION: table rows have either <th> or <td>, not both -->
+  <xsl:template mode="before" match="tr[th] | th">[</xsl:template>
+  <xsl:template mode="after"  match="tr[th] | th">]</xsl:template>
 
-                  <!-- ASSUMPTION: <th> doesn't contain any nested markup (well, we ignore it anyway) -->
-                  <xsl:template match="th">[{.}]</xsl:template>
+  <xsl:template mode="before" match="tr">{$nl}  [</xsl:template>
+  <xsl:template mode="after"  match="tr">{$nl}  ]</xsl:template>
 
-          <xsl:template match="tr">
-            <xsl:text>{$nl}  [</xsl:text>
-            <xsl:apply-templates select="td"/>
-            <xsl:text>{$nl}  ]</xsl:text>
-          </xsl:template>
-
-                  <!-- ASSUMPTION: <td> doesn't directly contain text, only elements -->
-                  <xsl:template match="td">
-                    <xsl:text>{$nl}    [</xsl:text>
-                    <xsl:apply-templates select="*"/>
-                    <xsl:text>{$nl}    ]</xsl:text>
-                  </xsl:template>
+  <xsl:template mode="before" match="td">{$nl}    [</xsl:template>
+  <xsl:template mode="after"  match="td">{$nl}    ]</xsl:template>
 
   <xsl:template match="member-link[@display]"
                                    >[link {$doc-ref}.{/page/@id}.{d:make-id(@to)} [{d:qb-escape(@display)}]]</xsl:template>
   <xsl:template match="member-link">[link {$doc-ref}.{/page/@id}.{d:make-id(@to)} [*{d:qb-escape(@to)}]]</xsl:template>
 
-  <xsl:template match="emphasis">
-    <xsl:text>['</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>]</xsl:text>
-  </xsl:template>
+  <xsl:template mode="before" match="bold"    >[*</xsl:template>
+  <xsl:template mode="after"  match="bold"    >]</xsl:template>
 
-  <xsl:template match="bold">
-    <xsl:text>[*</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>]</xsl:text>
-  </xsl:template>
+  <xsl:template mode="before" match="emphasis">['</xsl:template>
+  <xsl:template mode="after"  match="emphasis">]</xsl:template>
 
-  <xsl:template match="computeroutput | code">
-    <xsl:text>`</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>`</xsl:text>
-  </xsl:template>
+  <xsl:template mode="before" match="computeroutput | code">`</xsl:template>
+  <xsl:template mode="after"  match="computeroutput | code">`</xsl:template>
 
   <xsl:template match="listitem">
     <xsl:text>{$nl}</xsl:text>
@@ -159,31 +118,28 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="para | div">
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:apply-templates/>
-  </xsl:template>
+  <xsl:template mode="before" match="para | div">{$nl}</xsl:template>
 
-  <xsl:template match="sp">
-    <xsl:text> </xsl:text>
-  </xsl:template>
+  <xsl:template match="sp">{' '}</xsl:template>
 
-  <xsl:template match="programlisting">
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:text>```</xsl:text>
-    <xsl:text>{$nl}</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>```</xsl:text>
-    <xsl:text>{$nl}</xsl:text>
-  </xsl:template>
+  <xsl:template mode="before" match="programlisting">&#xA;```{$nl}</xsl:template>
+  <xsl:template mode="after"  match="programlisting"     >```{$nl}</xsl:template>
 
-  <xsl:template match="codeline">
-    <xsl:apply-templates/>
-    <xsl:text>{$nl}</xsl:text>
-  </xsl:template>
+  <xsl:template mode="after" match="codeline">{$nl}</xsl:template>
 
   <!-- Ignore whitespace-only text nodes -->
   <xsl:template match="text()[not(normalize-space())]"/>
+
+  <!-- Default rule for elements -->
+  <xsl:template match="*">
+    <xsl:apply-templates mode="before" select="."/>
+    <xsl:apply-templates/>
+    <xsl:apply-templates mode="after" select="."/>
+  </xsl:template>
+
+          <xsl:template mode="before" match="*"/>
+          <xsl:template mode="after" match="*"/>
+
 
   <xsl:function name="d:qb-escape">
     <xsl:param name="string"/>
@@ -192,12 +148,6 @@
                             '\]',
                             '\\]'
                           )"/>
-  </xsl:function>
-
-  <!-- Convenience function for processing child nodes in the default mode -->
-  <xsl:function name="my:content">
-    <xsl:param name="sequence"/>
-    <xsl:apply-templates select="$sequence/node()"/>
   </xsl:function>
 
 </xsl:stylesheet>
