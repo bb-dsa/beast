@@ -115,7 +115,7 @@
                                  detaileddescription//(simplesect | parameterlist)
                                  :)
                                  "/>
-    <xsl:apply-templates mode="includes-footer"/>
+    <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
   <xsl:template match="memberdef">
