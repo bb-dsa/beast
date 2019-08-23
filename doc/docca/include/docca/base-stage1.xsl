@@ -131,9 +131,7 @@
           </xsl:template>
 
           <xsl:template mode="memberdef-page-content" match="memberdef[/doxygen/@d:page-type eq 'overload-list']">
-            <overloaded-members>
-              <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
-            </overloaded-members>
+            <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
           </xsl:template>
 
                   <xsl:template mode="overload-list" match="memberdef">
