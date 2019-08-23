@@ -353,7 +353,7 @@
                                     <xsl:otherwise>
                                       <!-- Otherwise, favor the member that's in the same class or namespace as the current page -->
                                       <xsl:variable name="sibling-reference" as="element()*">
-                                        <xsl:variable name="compound-for-current-page" select="$ref/(/doxygen/compounddef/compoundname/string())"/>
+                                        <xsl:variable name="compound-for-current-page" select="root($ref)/doxygen/compounddef/compoundname/string()"/>
                                         <xsl:sequence select="$referenced-elements[parent::compound/name eq $compound-for-current-page]"/>
                                       </xsl:variable>
                                       <xsl:choose>
