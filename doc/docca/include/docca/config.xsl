@@ -12,6 +12,10 @@
     <replace pattern="boost::asio::error" with=""/>
   </xsl:variable>
 
+  <xsl:variable name="additional-type-replacements" as="element(replace)*">
+    <replace pattern="BOOST_ASIO_DECL ?(.*)" with="$1"/>
+  </xsl:variable>
+
   <xsl:variable name="include-private-members" select="false()"/>
 
   <xsl:template mode="includes-template" match="location"

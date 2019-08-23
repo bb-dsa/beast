@@ -33,16 +33,16 @@
 
   <xsl:function name="d:make-id">
     <xsl:param name="name"/>
-    <xsl:sequence select="d:make-id($name, $id-replacements)"/>
+    <xsl:sequence select="d:perform-replacements($name, $id-replacements)"/>
   </xsl:function>
 
-  <xsl:function name="d:make-id">
+  <xsl:function name="d:perform-replacements">
     <xsl:param name="name"/>
     <xsl:param name="replacements"/>
     <xsl:variable name="next" select="head($replacements)"/>
     <xsl:variable name="rest" select="tail($replacements)"/>
     <xsl:sequence select="if (exists($next))
-                          then d:make-id(replace($name, $next/@pattern, $next/@with), $rest)
+                          then d:perform-replacements(replace($name, $next/@pattern, $next/@with), $rest)
                           else $name"/>
   </xsl:function>
 
@@ -50,6 +50,7 @@
 
   <!-- Can be overridden by a customizing stylesheet -->
   <xsl:variable name="additional-id-replacements" as="element(replace)*" select="()"/>
+
   <xsl:variable name="base-id-replacements" as="element(replace)+">
     <replace pattern="^boost::system::" with=""/>  <!-- TODO: verify this is generic enough not to be in a custom stylesheet -->
     <replace pattern="boost__posix_time__ptime" with="ptime"/>  <!-- TODO: verify this is correct; it smells... (the input looks already partially processed) -->
@@ -70,6 +71,37 @@
     <replace pattern="\*" with="_star_"/>
     <replace pattern="/" with="_slash_"/>
     <replace pattern=" " with="_"/>
+  </xsl:variable>
+
+  <xsl:function name="d:cleanup-param">
+    <xsl:param name="name"/>
+    <xsl:sequence select="d:perform-replacements($name, $param-replacements)"/>
+  </xsl:function>
+
+  <xsl:function name="d:cleanup-type">
+    <xsl:param name="name"/>
+    <xsl:sequence select="d:perform-replacements($name, $type-replacements)"/>
+  </xsl:function>
+
+  <xsl:variable name="param-replacements" select="$additional-param-replacements, $base-param-replacements"/>
+
+  <!-- Can be overridden by a customizing stylesheet -->
+  <xsl:variable name="additional-param-replacements" as="element(replace)*" select="()"/>
+
+  <xsl:variable name="base-param-replacements" as="element(replace)*">
+    <!-- Reformats '*', '&', and '...' in parameters, e.g. "void const*" -->
+    <replace pattern=" \*$" with="*"/>
+    <replace pattern=" (&amp;&amp;?)(\.{3})?$" with="$1$2"/>
+  </xsl:variable>
+
+  <!-- NOTE: $type-replacements includes $param-replacements -->
+  <xsl:variable name="type-replacements" select="$additional-type-replacements, $base-type-replacements, $param-replacements"/>
+
+  <!-- Can be overridden by a customizing stylesheet -->
+  <xsl:variable name="additional-type-replacements" as="element(replace)*" select="()"/>
+
+  <xsl:variable name="base-type-replacements" as="element(replace)*">
+    <replace pattern="^virtual$" with=""/>
   </xsl:variable>
 
 </xsl:stylesheet>

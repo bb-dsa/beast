@@ -157,9 +157,10 @@
                           </xsl:template>
 
 
-  <!-- TODO: implement "cleanup-type" from the original doxygen.xsl -->
-  <xsl:template match="type[normalize-space(.)]">
-    <xsl:next-match/>
+  <xsl:template match="type[not(ref)]">
+    <type>
+      <xsl:value-of select="d:cleanup-type(.)"/>
+    </type>
   </xsl:template>
 
   <!-- TODO: implement param normalization; see "cleanup-param", etc. -->
@@ -354,18 +355,20 @@
           <xsl:template mode="normalize-params" match="templateparamlist/param/type[not(../declname)]
                                                                                    [starts-with(.,'class ')]"
                                                 priority="1">
-            <type>{    substring-before(.,' ')}</type>
-            <declname>{substring-after (.,' ')}</declname>
+            <type>class</type>
+            <declname>{substring-after(.,'class ')}</declname>
           </xsl:template>
 
           <xsl:template mode="normalize-params" match="templateparamlist/param/type[not(../declname)]">
-            <ERROR message="param neither has declname nor 'class ' prefix in the type"/>
+            <ERROR message="param neither has a declname nor a 'class ' prefix in the type"/>
           </xsl:template>
 
           <xsl:template mode="normalize-params" match="templateparamlist/param/defname"/>
 
-          <!-- We only need to keep the @file attribute -->
-          <xsl:template match="location/@*[. except ../@file]"/>
+
+  <!-- We only need to keep the @file attribute -->
+  <xsl:template match="location/@*[. except ../@file]"/>
+
 
   <xsl:template match="briefdescription">
     <div>

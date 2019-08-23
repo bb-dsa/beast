@@ -3,7 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   exclude-result-prefixes="xs">
 
-  <xsl:variable name="emphasized-types" select="
+  <xsl:variable name="emphasized-template-parameter-types" select="
     'Allocator',
     'AsyncStream',
     'AsyncReadStream',
