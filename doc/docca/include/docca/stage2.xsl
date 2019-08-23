@@ -137,6 +137,7 @@
     <xsl:apply-templates mode="after" select="."/>
   </xsl:template>
 
+          <!-- Default before/after rule is to insert nothing -->
           <xsl:template mode="before" match="*"/>
           <xsl:template mode="after" match="*"/>
 
