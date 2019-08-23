@@ -48,8 +48,7 @@
 
   <xsl:template mode="before" match="typedef/name">using </xsl:template>
   <xsl:template mode="after"  match="typedef/name"> = </xsl:template>
-
-  <xsl:template mode="after" match="typedef/type">;</xsl:template>
+  <xsl:template mode="after"  match="typedef/type">;</xsl:template>
 
   <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 
