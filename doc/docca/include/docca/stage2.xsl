@@ -39,13 +39,8 @@
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
-  <xsl:template mode="before" match="compound | member | overloaded-members">&#xA;```&#xA;</xsl:template>
-  <xsl:template mode="after"  match="compound | member | overloaded-members">&#xA;```&#xA;</xsl:template>
-
-  <!-- We're using the above workaround, because the following runs afoul of https://saxonica.plan.io/issues/4208 (fixed in Saxon 9.9.1.3)
-  <xsl:template mode="before
-                      after" match="compound | member | overloaded-members">{$nl}```{$nl}</xsl:template>
-  -->
+  <xsl:template mode="before" match="compound | member | overloaded-members">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="after"  match="compound | member | overloaded-members">{$nl}```{$nl}</xsl:template>
 
   <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 
@@ -122,7 +117,7 @@
 
   <xsl:template match="sp">{' '}</xsl:template>
 
-  <xsl:template mode="before" match="programlisting">&#xA;```{$nl}</xsl:template>
+  <xsl:template mode="before" match="programlisting">{$nl}```{$nl}</xsl:template>
   <xsl:template mode="after"  match="programlisting"     >```{$nl}</xsl:template>
 
   <xsl:template mode="after" match="codeline">{$nl}</xsl:template>
