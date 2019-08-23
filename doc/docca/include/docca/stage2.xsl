@@ -104,12 +104,18 @@
           <xsl:template mode="list-item-label" match="itemizedlist">*</xsl:template>
           <xsl:template mode="list-item-label" match="orderedlist" >#</xsl:template>
 
-  <xsl:template match="para" priority="1">
+  <xsl:template match="/page/div/para" priority="1">
     <xsl:next-match/>
-    <xsl:if test=". is /page/div[1]/para[1] and $DEBUG">
-      <xsl:text>[@../../doc/html/beast/ref/{translate(/page/@id,'.','/')}.html original_results] </xsl:text>
-      <xsl:text>[@../build/stage1_visualized/visualized/{/page/@id}.html stage1_visualized] </xsl:text>
-      <xsl:text>[@../build/stage2_visualized/visualized/{/page/@id}.html stage2_visualized] </xsl:text>
+    <xsl:if test="$DEBUG and . is /page/div[1]/para[1]">
+      <xsl:text>['</xsl:text>
+      <xsl:text>[role red \[Page type: [*{/*/@type}]\]] </xsl:text>
+      <xsl:text>[role green \[[@../../doc/html/beast/ref/{translate(/page/@id,'.','/')}.html [role green original_result_html]]\]] </xsl:text>
+      <xsl:text>[@../build/xml-pages/{/page/@id}.xml                     [role blue   [*\[stage1_source_xml\]]]]</xsl:text>
+      <xsl:text>[@../build/stage1_visualized/visualized/{/page/@id}.html [role magenta ---stage1_visualized-->]]</xsl:text>
+      <xsl:text>[@../build/stage1_visualized/results/{   /page/@id}.xml  [role blue   [*\[stage2_source_xml\]]]]</xsl:text>
+      <xsl:text>[@../build/stage2_visualized/visualized/{/page/@id}.html [role magenta ---stage2_visualized-->]]</xsl:text>
+      <xsl:text>[@../build/stage2_visualized/results/{   /page/@id}.xml  [role blue   [*\[stage2_result_qbk\]]]]</xsl:text>
+      <xsl:text>]</xsl:text>
     </xsl:if>
   </xsl:template>
 
