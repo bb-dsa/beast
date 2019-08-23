@@ -104,9 +104,8 @@
           <xsl:template mode="list-item-label" match="itemizedlist">*</xsl:template>
           <xsl:template mode="list-item-label" match="orderedlist" >#</xsl:template>
 
-  <xsl:template match="/page/div/para" priority="1">
-    <xsl:next-match/>
-    <xsl:if test="$DEBUG and . is /page/div[1]/para[1]">
+  <xsl:template mode="after" match="/page/div[1]" priority="1">
+    <xsl:if test="$DEBUG">
       <xsl:text>['</xsl:text>
       <xsl:text>[role red \[Page type: [*{/*/@type}]\]] </xsl:text>
       <xsl:text>[role green \[[@../../doc/html/beast/ref/{translate(/page/@id,'.','/')}.html [role green original_result_html]]\]] </xsl:text>
