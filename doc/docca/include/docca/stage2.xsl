@@ -39,12 +39,17 @@
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
-  <xsl:template mode="before" match="compound | member | overloaded-member">{$nl}```{$nl}</xsl:template>
-  <xsl:template mode="after"  match="compound | member | overloaded-member">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="before" match="compound | member | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="after"  match="compound | member | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
 
   <!-- Merge adjacent overloaded-members into one syntax block, separated by one blank line -->
   <xsl:template mode="before" match="overloaded-member[preceding-sibling::*[1]/self::overloaded-member]">{$nl}{$nl}</xsl:template>
   <xsl:template mode="after"  match="overloaded-member[following-sibling::*[1]/self::overloaded-member]"/>
+
+  <xsl:template mode="before" match="typedef/name">using </xsl:template>
+  <xsl:template mode="after"  match="typedef/name"> = </xsl:template>
+
+  <xsl:template mode="after" match="typedef/type">;</xsl:template>
 
   <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 

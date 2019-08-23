@@ -339,6 +339,14 @@
     </compound>
   </xsl:template>
 
+  <xsl:template mode="section-body" match="memberdef[@kind eq 'typedef']">
+    <typedef>
+      <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
+      <xsl:apply-templates select="name, type"/>
+    </typedef>
+    <!-- TODO: output typedef table here (when applicable) -->
+  </xsl:template>
+
   <!-- TODO: finish implementing this; consider different elements for <enum>, <function>, etc. -->
   <xsl:template mode="section-body" match="memberdef">
     <xsl:apply-templates mode="includes-header" select="."/>
