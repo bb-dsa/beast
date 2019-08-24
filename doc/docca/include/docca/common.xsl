@@ -91,7 +91,7 @@
   <xsl:variable name="base-param-replacements" as="element(replace)*">
     <!-- Reformats '*', '&', and '...' in parameters, e.g. "void const*" -->
     <replace pattern=" \*$" with="*"/>
-    <replace pattern=" (&amp;&amp;?)(\.{3})?$" with="$1$2"/>
+    <replace pattern=" (&amp;&amp;?)(\.{{3}})?$" with="$1$2"/>
   </xsl:variable>
 
   <!-- NOTE: $type-replacements includes $param-replacements -->
