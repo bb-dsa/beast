@@ -141,9 +141,11 @@
                       <xsl:apply-templates mode="modifier" select="(@explicit, @friend, @static)[. eq 'yes'],
                                                                    @virt[. eq 'virtual']"/>
                       <xsl:apply-templates select="type"/>
-                      <member-link to="{@d:page-id}" display="{name}"/>
-                      <xsl:apply-templates select="param"/>
-                      <member-link to="{@d:page-id}" display="more..."/>
+                      <link to="{@d:page-refid}">{name}</link>
+                      <params>
+                        <xsl:apply-templates select="param"/>
+                      </params>
+                      <xsl:apply-templates mode="modifier" select="@const[. eq 'yes']"/>
                     </overloaded-member>
                   </xsl:template>
 
@@ -298,7 +300,9 @@
           <xsl:template mode="member-row" match="*">
             <tr>
               <td>
-                <member-link to="{d:member-name(.)}"/>
+                <bold>
+                  <link to="{@d:page-refid}">{d:member-name(.)}</link>
+                </bold>
               </td>
               <td>
                 <xsl:apply-templates mode="member-description" select="."/>
@@ -357,7 +361,10 @@
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <xsl:apply-templates mode="modifier" select="@static[. eq 'yes'],
                                                    @virt  [. eq 'virtual']"/>
-      <xsl:apply-templates select="type, name, param"/> <!-- TODO: implement param[array] rendering (elsewhere) -->
+      <xsl:apply-templates select="type, name"/>
+      <params>
+        <xsl:apply-templates select="param"/> <!-- TODO: implement param[array] rendering (elsewhere) -->
+      </params>
       <xsl:apply-templates mode="modifier" select="@const[. eq 'yes']"/>
     </function>
   </xsl:template>

@@ -2,7 +2,6 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:d="http://github.com/vinniefalco/docca"
-  xmlns:my="http://localhost"
   expand-text="yes">
 
   <xsl:output method="text"/>
@@ -42,9 +41,29 @@
   <xsl:template mode="before" match="compound | function | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
   <xsl:template mode="after"  match="compound | function | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
 
+  <xsl:template mode="append" match="function">;</xsl:template>
+
   <!-- Merge adjacent overloaded-members into one syntax block, separated by one blank line -->
   <xsl:template mode="before" match="overloaded-member[preceding-sibling::*[1]/self::overloaded-member]">{$nl}{$nl}</xsl:template>
   <xsl:template mode="after"  match="overloaded-member[following-sibling::*[1]/self::overloaded-member]"/>
+
+  <xsl:template mode="after" match="overloaded-member/type[normalize-space(.)]
+                                  |          function/type[normalize-space(.)]">{$nl}</xsl:template>
+
+  <xsl:template mode="before" match="overloaded-member/link">``</xsl:template>
+  <xsl:template mode="after"  match="overloaded-member/link">``</xsl:template>
+
+  <xsl:template mode="append" match="overloaded-member">
+    <xsl:text>;{$nl}</xsl:text>
+    <xsl:variable name="more-link" as="element()">
+      <emphasis>'''&amp;raquo;''' <link to="{../link/@to}">more...</link></emphasis>
+    </xsl:variable>
+    <xsl:text>  ``</xsl:text>
+    <xsl:apply-templates select="$more-link"/>
+    <xsl:text>``</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="link">[link {$doc-ref}.{@to} {d:qb-escape(.)}]</xsl:template>
 
   <xsl:template mode="before" match="typedef/name">using </xsl:template>
   <xsl:template mode="after"  match="typedef/name"> = </xsl:template>
@@ -56,16 +75,17 @@
 
   <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 
-  <xsl:template mode="before" match="templateparamlist">template&lt;{$nl}</xsl:template>
+  <xsl:template mode="before" match="templateparamlist">template&lt;</xsl:template>
   <xsl:template mode="after"  match="templateparamlist">>{$nl}</xsl:template>
 
-  <xsl:template mode="before" match="param">{'    '}</xsl:template>
-  <xsl:template mode="after"  match="param[position() ne last()]">,{$nl}</xsl:template>
+  <xsl:template mode="before" match="param">{$nl}    </xsl:template>
+  <xsl:template mode="after"  match="param[position() ne last()]">,</xsl:template>
 
-  <xsl:template mode="after" match="param/type">{' '}</xsl:template>
+  <xsl:template mode="after" match="param[declname]/type">{' '}</xsl:template>
 
-  <xsl:template mode="after" match="function/name">({$nl}</xsl:template>
-  <xsl:template mode="after" match="function/param[last()]">);</xsl:template>
+
+  <xsl:template mode="before" match="params">(</xsl:template>
+  <xsl:template mode="after"  match="params">)</xsl:template>
 
   <xsl:template match="templateparamlist/param/declname[. = $emphasized-template-parameter-types]"
     >__{translate(.,'_','')}__</xsl:template>
@@ -93,10 +113,6 @@
   <xsl:template mode="before" match="td">{$nl}    [</xsl:template>
   <xsl:template mode="after"  match="td">{$nl}    ]</xsl:template>
 
-  <xsl:template match="member-link[@display]"
-                                   >[link {$doc-ref}.{/page/@id}.{d:make-id(@to)} [{d:qb-escape(@display)}]]</xsl:template>
-  <xsl:template match="member-link">[link {$doc-ref}.{/page/@id}.{d:make-id(@to)} [*{d:qb-escape(@to)}]]</xsl:template>
-
   <xsl:template mode="before" match="bold"    >[*</xsl:template>
   <xsl:template mode="after"  match="bold"    >]</xsl:template>
 
@@ -122,7 +138,7 @@
           <xsl:template mode="list-item-label" match="itemizedlist">*</xsl:template>
           <xsl:template mode="list-item-label" match="orderedlist" >#</xsl:template>
 
-  <xsl:template mode="after" match="/page/div[1]" priority="1">
+  <xsl:template mode="append" match="/page/div[1]">
     <xsl:if test="$DEBUG">
       <xsl:text>['</xsl:text>
       <xsl:text>[role red \[Page type: [*{/*/@type}]\]] </xsl:text>
@@ -148,15 +164,23 @@
   <!-- Ignore whitespace-only text nodes -->
   <xsl:template match="text()[not(normalize-space())]"/>
 
-  <!-- Default rule for elements -->
-  <xsl:template match="*">
+  <!-- Boilerplate default rules for elements -->
+  <!-- Convention of this stylesheet is to favor use of just "before" and "after"
+       and to utilize "append" (and maybe "insert") only when a distinction is needed -->
+  <xsl:template match="*" priority="1">
     <xsl:apply-templates mode="before" select="."/>
-    <xsl:apply-templates/>
+    <!-- enable if needed/desired
+    <xsl:apply-templates mode="insert" select="."/> -->
+    <xsl:next-match/>
+    <xsl:apply-templates mode="append" select="."/>
     <xsl:apply-templates mode="after" select="."/>
   </xsl:template>
 
-          <!-- Default before/after rule is to insert nothing -->
+          <!-- Default before/after/insert/append rules are to do nothing -->
           <xsl:template mode="before" match="*"/>
+          <!-- enable if needed/desired
+          <xsl:template mode="insert" match="*"/> -->
+          <xsl:template mode="append" match="*"/>
           <xsl:template mode="after" match="*"/>
 
 

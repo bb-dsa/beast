@@ -179,6 +179,11 @@
                     <xsl:call-template name="copy-in-compound-page"/>
                   </xsl:template>
 
+                  <!-- Insert a reference to each child member's page ID -->
+                  <xsl:template mode="compound-page-insert" match="memberdef">
+                    <xsl:attribute name="d:page-refid" select="d:make-id(/doxygen/compounddef/compoundname||'.'||name)"/>
+                  </xsl:template>
+
                   <!-- Alternative implementation in case we need to start controlling whitespace more
                   <xsl:template mode="compound-page" match="memberdef">
                     <memberdef>
@@ -301,7 +306,7 @@
                     <xsl:param name="applicable-members" tunnel="yes"/>
                     <xsl:variable name="this-id" select="@id"/>
                     <xsl:variable name="original-member" select="$applicable-members[@refid eq $this-id]"/>
-                    <xsl:attribute name="d:page-id">
+                    <xsl:attribute name="d:page-refid">
                       <xsl:apply-templates mode="page-id" select="$original-member">
                         <xsl:with-param name="is-overload-list-page" select="false()" tunnel="yes"/>
                       </xsl:apply-templates>
@@ -310,6 +315,7 @@
 
                   <!-- For public innerclasses, insert the referenced class inline -->
                   <xsl:template mode="compound-page-insert" match="innerclass[@prot eq 'public']">
+                    <xsl:attribute name="d:page-refid" select="d:make-id(.)"/>
                     <d:referenced-class>
                       <xsl:variable name="compound" select="d:get-target-element(.)" as="element(compound)"/>
                       <xsl:apply-templates mode="compound-page" select="d:get-source-doc($compound)"/>
