@@ -39,8 +39,8 @@
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
-  <xsl:template mode="before" match="compound | member | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
-  <xsl:template mode="after"  match="compound | member | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="before" match="compound | function | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="after"  match="compound | function | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
 
   <!-- Merge adjacent overloaded-members into one syntax block, separated by one blank line -->
   <xsl:template mode="before" match="overloaded-member[preceding-sibling::*[1]/self::overloaded-member]">{$nl}{$nl}</xsl:template>
@@ -59,17 +59,23 @@
   <xsl:template mode="before" match="templateparamlist">template&lt;{$nl}</xsl:template>
   <xsl:template mode="after"  match="templateparamlist">>{$nl}</xsl:template>
 
-  <xsl:template mode="before" match="templateparamlist/param">{'    '}</xsl:template>
-  <xsl:template mode="after"  match="templateparamlist/param[position() ne last()]">,{$nl}</xsl:template>
+  <xsl:template mode="before" match="param">{'    '}</xsl:template>
+  <xsl:template mode="after"  match="param[position() ne last()]">,{$nl}</xsl:template>
 
-  <xsl:template mode="after" match="templateparamlist/param/type">{' '}</xsl:template>
+  <xsl:template mode="after" match="param/type">{' '}</xsl:template>
+
+  <xsl:template mode="after" match="function/name">({$nl}</xsl:template>
+  <xsl:template mode="after" match="function/param[last()]">);</xsl:template>
 
   <xsl:template match="templateparamlist/param/declname[. = $emphasized-template-parameter-types]"
     >__{translate(.,'_','')}__</xsl:template>
 
   <xsl:template mode="before" match="defval"> = </xsl:template>
 
-  <xsl:template mode="after" match="modifier">{$nl}</xsl:template>
+  <xsl:template mode="before" match="modifier[. eq 'const']">{' '}</xsl:template>
+  <xsl:template mode="after"  match="modifier[. eq 'const']"/>
+
+  <xsl:template mode="after"  match="modifier">{$nl}</xsl:template>
 
 
   <xsl:template mode="#all" match="ERROR">[role red error.{@message}]</xsl:template>

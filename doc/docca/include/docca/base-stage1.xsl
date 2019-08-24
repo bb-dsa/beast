@@ -161,10 +161,13 @@
     </type>
   </xsl:template>
 
-  <!-- TODO: implement param normalization; see "cleanup-param", etc. -->
-  <xsl:template match="param">
-    <xsl:next-match/>
+  <!-- d:cleanup-param() may not be needed, and the above may suffice. (TODO: confirm this and remove d:cleanup-param() if so)
+  <xsl:template match="param/type">
+    <type>
+      <xsl:value-of select="d:cleanup-param(.)"/>
+    </type>
   </xsl:template>
+  -->
 
   <!-- TODO: Should this be a custom rule or built-in? -->
   <xsl:template mode="section" match="simplesect[matches(title,'Concepts:?')]"/>
@@ -348,13 +351,15 @@
   </xsl:template>
 
   <!-- TODO: finish implementing this; consider different elements for <enum>, <function>, etc. -->
-  <xsl:template mode="section-body" match="memberdef">
+  <xsl:template mode="section-body" match="memberdef[@kind = ('function','friend')]">
     <xsl:apply-templates mode="includes-header" select="."/>
-    <member>
+    <function>
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
-      <kind>{@kind}</kind>
-      <name>{name}</name>
-    </member>
+      <xsl:apply-templates mode="modifier" select="@static[. eq 'yes'],
+                                                   @virt  [. eq 'virtual']"/>
+      <xsl:apply-templates select="type, name, param"/> <!-- TODO: implement param[array] rendering (elsewhere) -->
+      <xsl:apply-templates mode="modifier" select="@const[. eq 'yes']"/>
+    </function>
   </xsl:template>
 
           <!-- TODO: make sure this is robust and handles all the possible cases well -->
