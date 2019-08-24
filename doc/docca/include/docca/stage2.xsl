@@ -56,7 +56,7 @@
   <xsl:template mode="append" match="overloaded-member">
     <xsl:text>;{$nl}</xsl:text>
     <xsl:variable name="more-link" as="element()">
-      <emphasis>'''&amp;raquo;''' <link to="{../link/@to}">more...</link></emphasis>
+      <emphasis>'''&amp;raquo;''' <link to="{link/@to}">more...</link></emphasis>
     </xsl:variable>
     <xsl:text>  ``</xsl:text>
     <xsl:apply-templates select="$more-link"/>
