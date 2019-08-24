@@ -155,9 +155,9 @@
                           </xsl:template>
 
 
-  <xsl:template match="type[not(ref)]">
+  <xsl:template match="type">
     <type>
-      <xsl:value-of select="d:cleanup-type(.)"/>
+      <xsl:value-of select="d:cleanup-type(normalize-space(.))"/>
     </type>
   </xsl:template>
 
