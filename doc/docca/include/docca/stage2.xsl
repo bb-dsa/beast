@@ -41,8 +41,8 @@
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
-  <xsl:template mode="before" match="compound | function | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
-  <xsl:template mode="after"  match="compound | function | typedef | overloaded-member">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="before" match="compound | function | typedef | enum | overloaded-member">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="after"  match="compound | function | typedef | enum | overloaded-member">{$nl}```{$nl}</xsl:template>
 
   <xsl:template mode="append" match="function">;</xsl:template>
 
@@ -67,6 +67,8 @@
   </xsl:template>
 
   <xsl:template match="link">[link {$doc-ref}.{@to} {d:qb-escape(.)}]</xsl:template>
+
+  <xsl:template mode="before" match="enum/name">enum </xsl:template>
 
   <xsl:template mode="before" match="typedef/name">using </xsl:template>
   <xsl:template mode="after"  match="typedef/name"> = </xsl:template>

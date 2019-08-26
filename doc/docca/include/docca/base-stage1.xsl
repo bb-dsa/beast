@@ -156,6 +156,11 @@
             <xsl:apply-templates mode="section" select="., detaileddescription"/>
           </xsl:template>
 
+          <xsl:template mode="memberdef-page-content" match="memberdef[@kind eq 'enum']">
+            <xsl:apply-templates select="briefdescription"/>
+            <xsl:apply-templates mode="section" select="., parent::sectiondef, detaileddescription"/>
+          </xsl:template>
+
           <xsl:template mode="memberdef-page-content" match="memberdef[/doxygen/@d:page-type eq 'overload-list']">
             <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
           </xsl:template>
@@ -231,6 +236,8 @@
   <xsl:template mode="section-heading" match="sectiondef[@kind eq 'friend'     ]">Friends</xsl:template>
   <xsl:template mode="section-heading" match="sectiondef[@kind eq 'related'    ]">Related Functions</xsl:template>
 
+  <xsl:template mode="section-heading" match="sectiondef[@kind eq 'enum']">Values</xsl:template>
+
   <xsl:template mode="section-heading" match="sectiondef">
     <xsl:apply-templates mode="access-level" select="@kind"/>
     <xsl:apply-templates mode="member-kind" select="@kind"/>
@@ -303,6 +310,10 @@
             <xsl:sequence select="$friends"/>
           </xsl:template>
 
+          <xsl:template mode="member-nodes" match="sectiondef[@kind eq 'enum']">
+            <xsl:sequence select="memberdef/enumvalue"/>
+          </xsl:template>
+
           <xsl:template mode="member-nodes" match="sectiondef">
             <xsl:sequence select="memberdef"/>
           </xsl:template>
@@ -313,13 +324,24 @@
             <xsl:apply-templates mode="member-name" select="$element"/>
           </xsl:function>
 
-                  <xsl:template mode="member-name" match="memberdef">
+                  <xsl:template mode="member-name" match="memberdef | enumvalue">
                     <xsl:sequence select="name"/>
                   </xsl:template>
                   <xsl:template mode="member-name" match="innerclass">
                     <xsl:sequence select="d:referenced-class/doxygen/compounddef/compoundname ! d:strip-ns(.)"/>
                   </xsl:template>
 
+
+          <xsl:template mode="member-row" match="enumvalue">
+            <tr>
+              <td>
+                <code>{d:member-name(.)}</code>
+              </td>
+              <td>
+                <xsl:apply-templates mode="member-description" select="."/>
+              </td>
+            </tr>
+          </xsl:template>
 
           <!-- Only output a table row for the first instance of each name (ignore overloads) -->
           <xsl:template mode="member-row" match="memberdef[name = preceding-sibling::memberdef/name]"/>
@@ -336,6 +358,9 @@
             </tr>
           </xsl:template>
 
+                  <xsl:template mode="member-description" match="enumvalue">
+                    <xsl:apply-templates select="briefdescription, detaileddescription"/>
+                  </xsl:template>
                   <xsl:template mode="member-description" match="innerclass">
                     <xsl:apply-templates select="d:referenced-class/doxygen/compounddef/briefdescription"/>
                   </xsl:template>
@@ -378,6 +403,12 @@
       <xsl:apply-templates select="name, type"/>
     </typedef>
     <!-- TODO: output typedef table here (when applicable) -->
+  </xsl:template>
+
+  <xsl:template mode="section-body" match="memberdef[@kind eq 'enum']">
+    <enum>
+      <xsl:apply-templates select="name"/>
+    </enum>
   </xsl:template>
 
   <!-- TODO: finish implementing this; consider different elements for <enum>, <function>, etc. -->
