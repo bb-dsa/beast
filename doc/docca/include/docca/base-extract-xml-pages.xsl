@@ -6,7 +6,10 @@
   expand-text="yes">
 
   <!-- TODO: make sure this doesn't screw up any formatting -->
+  <!-- NEW TODO: verify we don't need/want this -->
+  <!--
   <xsl:output indent="yes"/>
+  -->
 
   <xsl:include href="common.xsl"/>
 

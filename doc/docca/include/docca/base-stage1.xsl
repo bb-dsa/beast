@@ -1,10 +1,13 @@
 <!DOCTYPE xsl:stylesheet [
 <!-- TODO: complete this list -->
-<!ENTITY BLOCK_LEVEL_ELEMENT "itemizedlist
+<!ENTITY BLOCK_LEVEL_ELEMENT "programlisting
+                            | itemizedlist
                             | orderedlist
-                            | programlisting
+                            | parameterlist
+                            | simplesect
                             | para
-                            | table">
+                            | table
+                            | linebreak">
 ]>
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -478,12 +481,71 @@
   <xsl:template mode="includes-header" match="*"/>
   <xsl:template mode="includes-footer" match="*"/>
 
-  <!-- If a non-whitespace-only text node appears as a sibling of a block-level element, wrap it in a <para> -->
-  <xsl:template match="*[&BLOCK_LEVEL_ELEMENT;]/text()[normalize-space(.)]">
+
+  <!-- When a <para> directly contains a mix of inline nodes and block-level elements, normalize its content -->
+  <xsl:template match="para[&BLOCK_LEVEL_ELEMENT;]">
     <para>
-      <xsl:copy-of select="."/>
+      <xsl:for-each-group select="* | text()" group-adjacent="d:is-inline(.)">
+        <xsl:apply-templates mode="capture-ranges" select="."/>
+      </xsl:for-each-group>
     </para>
   </xsl:template>
+
+          <xsl:function name="d:is-inline">
+            <xsl:param name="node"/>
+            <xsl:sequence select="not($node/../(&BLOCK_LEVEL_ELEMENT;)[. is $node])"/>
+          </xsl:function>
+
+          <!-- Copy ranges of block-level elements without change -->
+          <xsl:template mode="capture-ranges" match="node()">
+            <xsl:copy-of select="current-group()"/>
+          </xsl:template>
+
+          <!-- Wrap contiguous ranges of inline children in a nested <para> -->
+          <xsl:template mode="capture-ranges" match="node()[d:is-inline(.)]">
+            <xsl:choose>
+              <!-- But only if it has text or if the group has more than one node -->
+              <xsl:when test="normalize-space(.) or current-group()[2]">
+                <para>
+                  <xsl:apply-templates mode="strip-leading-space" select="."/>
+                </para>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:next-match/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:template>
+
+
+  <!-- Strip leading whitespace from the nested paragraphs to prevent eventual interpretation as a code block -->
+  <xsl:template mode="strip-leading-space" match="*">
+    <xsl:copy>
+      <xsl:apply-templates mode="#current" select="@* | node()[1]"/>
+    </xsl:copy>
+    <xsl:apply-templates mode="#current" select="following-sibling::node()[1]
+                                                 [ancestor-or-self::node() intersect current-group()]"/>
+  </xsl:template>
+
+  <xsl:template mode="strip-leading-space" match="@*">
+    <xsl:copy/>
+  </xsl:template>
+
+  <xsl:template mode="strip-leading-space" match="text()">
+    <xsl:param name="done-stripping" tunnel="yes" select="false()"/>
+    <xsl:choose>
+      <xsl:when test="$done-stripping">
+        <xsl:sequence select="."/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="replace(.,'^\s+','')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:apply-templates mode="#current" select="following-sibling::node()[1]
+                                                 [ancestor-or-self::node() intersect current-group()]">
+      <xsl:with-param name="done-stripping" select="$done-stripping or normalize-space(.)" tunnel="yes"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
 
   <xsl:template mode="#default normalize-params" match="@* | node()">
     <xsl:copy copy-namespaces="no">
