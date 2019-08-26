@@ -454,11 +454,15 @@
     </div>
   </xsl:template>
 
+  <xsl:template match="simplesect/title"/>
+
+  <!-- TODO: verify we don't need this; it was causing duplicate headings in simplesect sections
   <xsl:template match="title">
     <heading>
       <xsl:apply-templates/>
     </heading>
   </xsl:template>
+  -->
 
   <!-- TODO: check both of these rules; I don't think they're correct yet, e.g. w.r.t. namespace memberdefs -->
   <xsl:template mode="includes-header" match="compounddef | memberdef[@kind eq 'friend']
@@ -496,9 +500,9 @@
             <xsl:sequence select="not($node/../(&BLOCK_LEVEL_ELEMENT;)[. is $node])"/>
           </xsl:function>
 
-          <!-- Copy ranges of block-level elements without change -->
+          <!-- Process the block-level elements as usual -->
           <xsl:template mode="capture-ranges" match="node()">
-            <xsl:copy-of select="current-group()"/>
+            <xsl:apply-templates select="current-group()"/>
           </xsl:template>
 
           <!-- Wrap contiguous ranges of inline children in a nested <para> -->
