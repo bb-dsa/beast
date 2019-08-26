@@ -17,13 +17,16 @@
 
   <xsl:template mode="before" match="/page">
     <xsl:text>{$nl}</xsl:text>
-    <xsl:text>[section:{@section-id} {d:qb-escape(title)}]</xsl:text>
+    <xsl:text>[section:{tokenize(@id,'\.')[last()]} {d:qb-escape(title)}]</xsl:text>
     <xsl:apply-templates mode="indexterm" select="."/>
   </xsl:template>
 
           <xsl:template mode="indexterm" match="page"/>
-          <xsl:template mode="indexterm" match="page[@index-parent]"
-            >{$nl}[indexterm2 {d:qb-escape(@section-name)}..{d:qb-escape(@index-parent)}]{$nl}</xsl:template>
+          <xsl:template mode="indexterm" match="page[@primary-index-term]"
+            >{$nl}[indexterm1 {d:qb-escape(@primary-index-term)}]{$nl}</xsl:template>
+          <xsl:template mode="indexterm" match="page[@secondary-index-term]" priority="1"
+            >{$nl}[indexterm2 {d:qb-escape(@primary-index-term)}..{
+                               d:qb-escape(@secondary-index-term)}]{$nl}</xsl:template>
 
   <!-- Title is already included in section header -->
   <xsl:template match="/page/title"/>

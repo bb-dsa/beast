@@ -18,52 +18,84 @@
   <xsl:output indent="yes"/>
 
   <xsl:template match="/doxygen" priority="1">
-    <xsl:variable name="section-name">
-      <xsl:apply-templates mode="section-name" select="."/>
-    </xsl:variable>
-    <page id="{@d:page-id}" type="{@d:page-type}" section-name="{$section-name}" section-id="{d:make-id($section-name)}">
-      <xsl:apply-templates mode="index-parent-att" select="."/>
+    <page id="{@d:page-id}" type="{@d:page-type}">
+      <xsl:apply-templates mode="index-term-atts" select="."/>
+      <title>
+        <xsl:apply-templates mode="page-title" select="."/>
+      </title>
       <xsl:next-match/>
     </page>
   </xsl:template>
 
-          <xsl:template mode="section-name" match="doxygen[@d:page-type eq 'compound']">{@d:page-id}</xsl:template>
-          <xsl:template mode="section-name" match="doxygen[@d:overload-position]"      >overload{@d:overload-position}</xsl:template>
-          <xsl:template mode="section-name" match="doxygen"                            >{(compounddef/sectiondef/memberdef/name)[1]}</xsl:template>
-
-          <xsl:template mode="index-parent-att" match="doxygen[@d:page-type eq 'compound' or @d:overload-position]"/>
-          <xsl:template mode="index-parent-att" match="doxygen">
-            <xsl:attribute name="index-parent" select="d:strip-doc-ns(compounddef/compoundname)"/>
+          <!-- Put an index term on every page except class (compound) and overloaded-member pages -->
+          <xsl:template mode="index-term-atts" match="doxygen[@d:page-type eq 'compound' or @d:overload-position]"/>
+          <xsl:template mode="index-term-atts" match="doxygen">
+            <xsl:attribute name="primary-index-term">
+              <xsl:apply-templates mode="primary-index-term" select="."/>
+            </xsl:attribute>
+            <xsl:apply-templates mode="secondary-index-term-att" select="."/>
           </xsl:template>
 
-  <xsl:template match="/doxygen[@d:page-type eq 'member']">
-    <xsl:apply-templates select="compounddef/sectiondef/memberdef"/> <!-- should just be one -->
-  </xsl:template>
+                  <!-- By default, use the member name as the primary term... -->
+                  <xsl:template mode="primary-index-term" match="doxygen">
+                    <xsl:apply-templates mode="member-name" select="."/>
+                  </xsl:template>
+                  <!-- ...and the compound name as the secondary term. -->
+                  <xsl:template mode="secondary-index-term-att" match="doxygen">
+                    <xsl:attribute name="secondary-index-term">
+                      <xsl:apply-templates mode="compound-name" select="."/>
+                    </xsl:attribute>
+                  </xsl:template>
+
+                  <!-- But with namespace members, use the fully-qualified name as the primary term... -->
+                  <xsl:template mode="primary-index-term" match="doxygen[compounddef/@kind eq 'namespace']">
+                    <xsl:apply-templates mode="compound-and-member-name" select="."/>
+                  </xsl:template>
+                  <!-- ...and no secondary term. -->
+                  <xsl:template mode="secondary-index-term-att" match="doxygen[compounddef/@kind eq 'namespace']"/>
+
+                          <xsl:template mode="compound-name" match="doxygen"
+                            >{d:strip-doc-ns(compounddef/compoundname)}</xsl:template>
+
+                          <xsl:template mode="member-name" match="doxygen"
+                            >{(compounddef/sectiondef/memberdef/name)[1]}</xsl:template>
+
+                          <xsl:template mode="compound-and-member-name" match="doxygen">
+                            <xsl:apply-templates mode="compound-name" select="."/>
+                            <xsl:text>::</xsl:text>
+                            <xsl:apply-templates mode="member-name" select="."/>
+                          </xsl:template>
+
+          <xsl:template mode="page-title" match="doxygen[@d:page-type eq 'compound']">
+            <xsl:apply-templates mode="compound-name" select="."/>
+          </xsl:template>
+          <xsl:template mode="page-title" match="doxygen">
+            <xsl:apply-templates mode="compound-and-member-name" select="."/>
+            <xsl:apply-templates mode="overload-qualifier" select="."/>
+          </xsl:template>
+
+                  <xsl:template mode="overload-qualifier" match="doxygen"/>
+                  <xsl:template mode="overload-qualifier" match="doxygen[@d:overload-position]">
+                    <xsl:text> (</xsl:text>
+                    <xsl:value-of select="@d:overload-position"/>
+                    <xsl:text> of </xsl:text>
+                    <xsl:value-of select="@d:overload-size"/>
+                    <xsl:text> overloads)</xsl:text>
+                  </xsl:template>
+
 
   <xsl:template match="/doxygen[@d:page-type eq 'compound']">
     <xsl:apply-templates select="compounddef"/>
+  </xsl:template>
+
+  <xsl:template match="/doxygen[@d:page-type eq 'member']">
+    <xsl:apply-templates select="compounddef/sectiondef/memberdef"/> <!-- should just be one -->
   </xsl:template>
 
   <xsl:template match="/doxygen[@d:page-type eq 'overload-list']">
     <xsl:apply-templates select="(compounddef/sectiondef/memberdef)[1]"/>
   </xsl:template>
 
-  <xsl:template mode="page-title" match="compounddef">{d:strip-doc-ns(compoundname)}</xsl:template>
-  <xsl:template mode="page-title" match="memberdef">
-    <xsl:value-of select="d:strip-doc-ns(/doxygen/compounddef/compoundname)"/>
-    <xsl:text>::</xsl:text>
-    <xsl:value-of select="name"/>
-    <xsl:apply-templates mode="overload-qualifier" select="/doxygen"/>
-  </xsl:template>
-
-          <xsl:template mode="overload-qualifier" match="*"/>
-          <xsl:template mode="overload-qualifier" match="/doxygen[@d:overload-position]">
-            <xsl:text> (</xsl:text>
-            <xsl:value-of select="@d:overload-position"/>
-            <xsl:text> of </xsl:text>
-            <xsl:value-of select="@d:overload-size"/>
-            <xsl:text> overloads)</xsl:text>
-          </xsl:template>
 
   <!-- For convenience, pre-calculate some member sequences and tunnel them through -->
   <xsl:template match="compounddef" priority="1">
@@ -82,9 +114,6 @@
   <xsl:template match="compounddef">
     <xsl:param name="public-types" tunnel="yes"/>
     <xsl:param name="friends" tunnel="yes"/>
-    <title>
-      <xsl:apply-templates mode="page-title" select="."/>
-    </title>
 
     <xsl:apply-templates select="briefdescription"/>
 
@@ -119,9 +148,6 @@
   </xsl:template>
 
   <xsl:template match="memberdef">
-    <title>
-      <xsl:apply-templates mode="page-title" select="."/>
-    </title>
     <xsl:apply-templates mode="memberdef-page-content" select="."/>
   </xsl:template>
 
