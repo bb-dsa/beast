@@ -460,8 +460,8 @@
 
   <!-- TODO: Review; this is meant to effect what the previous code did, but I'm not sure it captures the original intentions -->
   <xsl:template mode="includes" match="compounddef
-                                     | memberdef[@kind eq 'friend']
-                                     | compounddef[@kind eq 'namespace']/*/memberdef">
+                                     | memberdef[@kind eq 'friend' or ../../@kind eq 'namespace']
+                                                [not(/doxygen/@d:page-type eq 'overload-list')]">
     <xsl:param name="is-footer"/>
     <para>
       <xsl:choose>
