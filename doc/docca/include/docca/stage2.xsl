@@ -66,7 +66,8 @@
     <xsl:text>``</xsl:text>
   </xsl:template>
 
-  <xsl:template match="link">[link {$doc-ref}.{@to} {d:qb-escape(.)}]</xsl:template>
+  <xsl:template match="link"                >[link {$doc-ref}.{@to} {d:qb-escape(.)}]</xsl:template>
+  <xsl:template match="link[@code eq 'yes']">[link {$doc-ref}.{@to} `{d:qb-escape(.)}`]</xsl:template>
 
   <xsl:template mode="before" match="enum/name">enum </xsl:template>
 

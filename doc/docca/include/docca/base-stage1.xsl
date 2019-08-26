@@ -448,6 +448,10 @@
   <xsl:template match="location/@*[. except ../@file]"/>
 
 
+  <xsl:template match="ref">
+    <link to="{@d:refid}" code="yes">{.}</link>
+  </xsl:template>
+
   <xsl:template match="briefdescription">
     <div>
       <xsl:apply-templates/>
