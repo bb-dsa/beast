@@ -122,6 +122,8 @@
   <xsl:template mode="before" match="computeroutput | code">`</xsl:template>
   <xsl:template mode="after"  match="computeroutput | code">`</xsl:template>
 
+  <xsl:template mode="after"  match="itemizedlist | orderedlist">{$nl}</xsl:template>
+
   <xsl:template match="listitem">
     <xsl:text>{$nl}</xsl:text>
     <xsl:apply-templates mode="list-item-indent" select="."/>
