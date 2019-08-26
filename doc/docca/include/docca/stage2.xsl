@@ -172,7 +172,7 @@
       <xsl:text>[@../build/stage1_visualized/visualized/{/page/@id}.html [role magenta ---stage1_visualized-->]]</xsl:text>
       <xsl:text>[@../build/stage1_visualized/results/{   /page/@id}.xml  [role blue   [*\[docca_page_xml\]]]]</xsl:text>
       <xsl:text>[@../build/stage2_visualized/visualized/{/page/@id}.html [role magenta ---stage2_visualized-->]]</xsl:text>
-      <xsl:text>[@../build/stage2_visualized/results/{   /page/@id}.xml  [role blue   [*\[quickbook_result\]]]]</xsl:text>
+      <xsl:text>[@../build/stage2_visualized/results/{   /page/@id}.txt  [role blue   [*\[quickbook_result\]]]]</xsl:text>
       <xsl:text>]</xsl:text>
     </xsl:if>
   </xsl:template>
