@@ -64,8 +64,10 @@
                             >{(compounddef/sectiondef/memberdef/name)[1]}</xsl:template>
 
                           <xsl:template mode="compound-and-member-name" match="doxygen">
-                            <xsl:apply-templates mode="compound-name" select="."/>
-                            <xsl:text>::</xsl:text>
+                            <xsl:variable name="compound-name" as="xs:string">
+                              <xsl:apply-templates mode="compound-name" select="."/>
+                            </xsl:variable>
+                            <xsl:if test="$compound-name">{$compound-name}::</xsl:if>
                             <xsl:apply-templates mode="member-name" select="."/>
                           </xsl:template>
 
@@ -151,44 +153,40 @@
   </xsl:template>
 
   <xsl:template match="memberdef">
-    <xsl:apply-templates mode="memberdef-page-content" select="."/>
+    <xsl:apply-templates select="briefdescription"/>
+    <xsl:apply-templates mode="section" select="., detaileddescription"/>
   </xsl:template>
 
-          <xsl:template mode="memberdef-page-content" match="memberdef">
-            <xsl:apply-templates select="briefdescription"/>
-            <xsl:apply-templates mode="section" select="., detaileddescription"/>
+  <xsl:template match="memberdef[@kind eq 'enum']">
+    <xsl:apply-templates select="briefdescription"/>
+    <xsl:apply-templates mode="section" select="., parent::sectiondef, detaileddescription"/>
+  </xsl:template>
+
+  <xsl:template match="memberdef[/doxygen/@d:page-type eq 'overload-list']">
+    <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
+  </xsl:template>
+
+          <xsl:template mode="overload-list" match="memberdef">
+            <xsl:apply-templates select="briefdescription[not(. = ../preceding-sibling::*/briefdescription)]"/>
+            <overloaded-member>
+              <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
+              <xsl:apply-templates mode="modifier" select="(@explicit, @friend, @static)[. eq 'yes'],
+                                                           @virt[. eq 'virtual']"/>
+              <xsl:apply-templates select="type"/>
+              <ref d:refid="{@d:page-refid}">{name}</ref>
+              <params>
+                <xsl:apply-templates select="param"/>
+              </params>
+              <xsl:apply-templates mode="modifier" select="@const[. eq 'yes']"/>
+            </overloaded-member>
           </xsl:template>
 
-          <xsl:template mode="memberdef-page-content" match="memberdef[@kind eq 'enum']">
-            <xsl:apply-templates select="briefdescription"/>
-            <xsl:apply-templates mode="section" select="., parent::sectiondef, detaileddescription"/>
-          </xsl:template>
-
-          <xsl:template mode="memberdef-page-content" match="memberdef[/doxygen/@d:page-type eq 'overload-list']">
-            <xsl:apply-templates mode="overload-list" select="../../sectiondef/memberdef"/>
-          </xsl:template>
-
-                  <xsl:template mode="overload-list" match="memberdef">
-                    <xsl:apply-templates select="briefdescription[not(. = ../preceding-sibling::*/briefdescription)]"/>
-                    <overloaded-member>
-                      <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
-                      <xsl:apply-templates mode="modifier" select="(@explicit, @friend, @static)[. eq 'yes'],
-                                                                   @virt[. eq 'virtual']"/>
-                      <xsl:apply-templates select="type"/>
-                      <ref d:refid="{@d:page-refid}">{name}</ref>
-                      <params>
-                        <xsl:apply-templates select="param"/>
-                      </params>
-                      <xsl:apply-templates mode="modifier" select="@const[. eq 'yes']"/>
-                    </overloaded-member>
+                  <xsl:template mode="modifier" match="@*">
+                    <modifier>{local-name(.)}</modifier>
                   </xsl:template>
-
-                          <xsl:template mode="modifier" match="@*">
-                            <modifier>{local-name(.)}</modifier>
-                          </xsl:template>
-                          <xsl:template mode="modifier" match="@virt">
-                            <modifier>virtual</modifier>
-                          </xsl:template>
+                  <xsl:template mode="modifier" match="@virt">
+                    <modifier>virtual</modifier>
+                  </xsl:template>
 
 
   <xsl:template match="type">
@@ -294,6 +292,21 @@
             </tr>
           </xsl:template>
 
+  <xsl:template mode="table-body" match="sectiondef[@kind eq 'enum']">
+    <xsl:apply-templates mode="enum-row" select="memberdef/enumvalue"/> <!-- Use input order for enum values -->
+  </xsl:template>
+
+          <xsl:template mode="enum-row" match="enumvalue">
+            <tr>
+              <td>
+                <code>{name}</code>
+              </td>
+              <td>
+                <xsl:apply-templates select="briefdescription, detaileddescription"/>
+              </td>
+            </tr>
+          </xsl:template>
+
   <xsl:template mode="table-body" match="sectiondef | innerclass">
     <xsl:variable name="member-nodes" as="element()*">
       <xsl:apply-templates mode="member-nodes" select="."/>
@@ -313,10 +326,6 @@
             <xsl:sequence select="$friends"/>
           </xsl:template>
 
-          <xsl:template mode="member-nodes" match="sectiondef[@kind eq 'enum']">
-            <xsl:sequence select="memberdef/enumvalue"/>
-          </xsl:template>
-
           <xsl:template mode="member-nodes" match="sectiondef">
             <xsl:sequence select="memberdef"/>
           </xsl:template>
@@ -327,7 +336,7 @@
             <xsl:apply-templates mode="member-name" select="$element"/>
           </xsl:function>
 
-                  <xsl:template mode="member-name" match="memberdef | enumvalue">
+                  <xsl:template mode="member-name" match="memberdef">
                     <xsl:sequence select="name"/>
                   </xsl:template>
                   <xsl:template mode="member-name" match="innerclass">
@@ -361,9 +370,6 @@
             </tr>
           </xsl:template>
 
-                  <xsl:template mode="member-description" match="enumvalue">
-                    <xsl:apply-templates select="briefdescription, detaileddescription"/>
-                  </xsl:template>
                   <xsl:template mode="member-description" match="innerclass">
                     <xsl:apply-templates select="d:referenced-class/doxygen/compounddef/briefdescription"/>
                   </xsl:template>
@@ -448,7 +454,7 @@
   <!-- We only need to keep the @file attribute -->
   <xsl:template match="location/@*[. except ../@file]"/>
 
-  <xsl:template match="briefdescription">
+  <xsl:template match="briefdescription | detaileddescription">
     <div>
       <xsl:apply-templates/>
     </div>

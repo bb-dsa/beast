@@ -28,7 +28,9 @@
   <!-- ASSUMPTION: $doc-ns is defined in the customizing stylesheet -->
   <xsl:function name="d:strip-doc-ns">
     <xsl:param name="name"/>
-    <xsl:sequence select="replace($name, '^'||$doc-ns||'::', '')"/>
+    <xsl:sequence select="if ($name eq $doc-ns)
+                          then ''
+                          else replace($name, '^'||$doc-ns||'::', '')"/>
   </xsl:function>
 
   <xsl:function name="d:make-id">
