@@ -94,3 +94,11 @@ for all the reference pages every time.
 However, if you want the fastest build possible (to repeatdly render just a subset of the reference pages),
 you're best off not using a custom xml-pages.xml file. Just whittling down index.xml to a small subset will
 give you the fastest build.
+
+# Running a build without visualizations (one master script)
+As a way of speeding things up further, you can run a build that includes everything but the visualizations
+(which is the most time-consuming thing to generate). To do this, simply run:
+
+ * ./non-traced-build.sh
+
+in lieu of run-all.sh. The technique for doing partial builds still applies to this build script as well.
