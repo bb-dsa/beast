@@ -46,7 +46,7 @@
   </xsl:template>
 
   <xsl:template match="footer/location">
-    <xsl:apply-templates mode="includes-footer" select="."/>
+    <xsl:apply-templates mode="includes-template-footer" select="."/>
   </xsl:template>
 
   <xsl:template mode="before" match="&SYNTAX_BLOCK;">{$nl}```{$nl}</xsl:template>

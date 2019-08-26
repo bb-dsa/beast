@@ -101,6 +101,12 @@
     <xsl:apply-templates select="(compounddef/sectiondef/memberdef)[1]"/>
   </xsl:template>
 
+  <xsl:template match="compounddef | memberdef" priority="2">
+    <xsl:next-match/>
+    <xsl:apply-templates mode="includes" select=".">
+      <xsl:with-param name="is-footer" select="true()"/>
+    </xsl:apply-templates>
+  </xsl:template>
 
   <!-- For convenience, pre-calculate some member sequences and tunnel them through -->
   <xsl:template match="compounddef" priority="1">
@@ -143,7 +149,6 @@
 
                                  detaileddescription
                                  "/>
-    <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
   <xsl:template match="memberdef">
@@ -380,8 +385,12 @@
     <xsl:apply-templates/>
   </xsl:template>
 
+  <xsl:template mode="section-body" match="compounddef | memberdef" priority="1">
+    <xsl:apply-templates mode="includes" select="."/>
+    <xsl:next-match/>
+  </xsl:template>
+
   <xsl:template mode="section-body" match="compounddef">
-    <xsl:apply-templates mode="includes-header" select="."/>
     <compound>
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <kind>{@kind}</kind>
@@ -411,7 +420,6 @@
 
   <!-- TODO: finish implementing this; consider different elements for <enum>, <function>, etc. -->
   <xsl:template mode="section-body" match="memberdef[@kind = ('function','friend')]">
-    <xsl:apply-templates mode="includes-header" select="."/>
     <function>
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <xsl:apply-templates mode="modifier" select="@static[. eq 'yes'],
@@ -458,26 +466,27 @@
   </xsl:template>
   -->
 
-  <!-- TODO: check both of these rules; I don't think they're correct yet, e.g. w.r.t. namespace memberdefs -->
-  <xsl:template mode="includes-header" match="compounddef | memberdef[@kind eq 'friend']
-                                                          | memberdef[/doxygen/@d:overload-position]">
-    <para>
-      <xsl:apply-templates select="location"/>
-    </para>
-  </xsl:template>
-
-  <xsl:template mode="includes-footer" match="compounddef | memberdef[@kind eq 'friend']
-                                                          | memberdef[/doxygen/@d:overload-position]">
-    <para>
-      <footer>
-        <xsl:apply-templates select="location"/>
-      </footer>
-    </para>
-  </xsl:template>
-
   <!-- By default, don't output an includes header or footer -->
-  <xsl:template mode="includes-header" match="*"/>
-  <xsl:template mode="includes-footer" match="*"/>
+  <xsl:template mode="includes" match="*"/>
+
+  <!-- TODO: Review; this is meant to effect what the previous code did, but I'm not sure it captures the original intentions -->
+  <xsl:template mode="includes" match="compounddef
+                                     | memberdef[@kind eq 'friend']
+                                     | compounddef[@kind eq 'namespace']/*/memberdef">
+    <xsl:param name="is-footer"/>
+    <para>
+      <xsl:choose>
+        <xsl:when test="$is-footer">
+          <footer>
+            <xsl:apply-templates select="location"/>
+          </footer>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="location"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </para>
+  </xsl:template>
 
 
   <!-- When a <para> directly contains a mix of inline nodes and block-level elements, normalize its content -->

@@ -18,11 +18,12 @@
 
   <xsl:variable name="include-private-members" select="false()"/>
 
+  <!-- TODO: refactor the stage-two-specific rules into a separate module that can't intefere with stage one -->
   <xsl:template mode="includes-template" match="location"
     >Defined in header [include_file {substring-after(@file, 'include/')}]
   </xsl:template>
 
-  <xsl:template mode="includes-footer" match="location">
+  <xsl:template mode="includes-template-footer" match="location">
     <xsl:variable name="convenience-header" as="xs:string?">
       <xsl:apply-templates mode="convenience-header" select="@file"/>
     </xsl:variable>
