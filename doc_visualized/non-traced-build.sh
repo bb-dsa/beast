@@ -1,5 +1,7 @@
 #!/bin/bash
 
+date
+
 echo "Copying docca XSLT files..." && \
 cp ../doc/docca/include/docca/* build && \
 
@@ -23,3 +25,5 @@ echo "Calling assemble-quickbook.sh..." && \
 echo "Calling the Beast build to run the Quickbook -> BoostBook -> DocBook -> HTML conversion..." && \
 cd .. && \
 ../../../b2.exe
+
+date
