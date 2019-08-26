@@ -343,17 +343,6 @@
                   </xsl:template>
 
 
-          <xsl:template mode="member-row" match="enumvalue">
-            <tr>
-              <td>
-                <code>{d:member-name(.)}</code>
-              </td>
-              <td>
-                <xsl:apply-templates mode="member-description" select="."/>
-              </td>
-            </tr>
-          </xsl:template>
-
           <!-- Only output a table row for the first instance of each name (ignore overloads) -->
           <xsl:template mode="member-row" match="memberdef[name = preceding-sibling::memberdef/name]"/>
           <xsl:template mode="member-row" match="*">
