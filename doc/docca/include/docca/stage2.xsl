@@ -89,6 +89,12 @@
 
   <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 
+  <xsl:template mode="before" match="base[1]"> :{$nl}    </xsl:template>
+  <xsl:template mode="before" match="base"     >{$nl}    </xsl:template>
+  <xsl:template mode="after"  match="base[position() ne last()]">,</xsl:template>
+
+  <xsl:template mode="after" match="base/prot">{' '}</xsl:template>
+
   <xsl:template mode="before" match="templateparamlist">template&lt;</xsl:template>
   <xsl:template mode="after"  match="templateparamlist">>{$nl}</xsl:template>
 
