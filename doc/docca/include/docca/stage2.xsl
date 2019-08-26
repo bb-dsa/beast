@@ -168,11 +168,11 @@
       <xsl:text>['</xsl:text>
       <xsl:text>[role red \[Page type: [*{/*/@type}]\]] </xsl:text>
       <xsl:text>[role green \[[@../../doc/html/beast/ref/{translate(/page/@id,'.','/')}.html [role green doc_build_html]]\]] </xsl:text>
-      <xsl:text>[@../build/xml-pages/{/page/@id}.xml                     [role blue   [*\[stage1_source_xml\]]]]</xsl:text>
+      <xsl:text>[@../build/xml-pages/{/page/@id}.xml                     [role blue   [*\[doxygen_page_xml\]]]]</xsl:text>
       <xsl:text>[@../build/stage1_visualized/visualized/{/page/@id}.html [role magenta ---stage1_visualized-->]]</xsl:text>
-      <xsl:text>[@../build/stage1_visualized/results/{   /page/@id}.xml  [role blue   [*\[stage2_source_xml\]]]]</xsl:text>
+      <xsl:text>[@../build/stage1_visualized/results/{   /page/@id}.xml  [role blue   [*\[docca_page_xml\]]]]</xsl:text>
       <xsl:text>[@../build/stage2_visualized/visualized/{/page/@id}.html [role magenta ---stage2_visualized-->]]</xsl:text>
-      <xsl:text>[@../build/stage2_visualized/results/{   /page/@id}.xml  [role blue   [*\[stage2_result_qbk\]]]]</xsl:text>
+      <xsl:text>[@../build/stage2_visualized/results/{   /page/@id}.xml  [role blue   [*\[quickbook_result\]]]]</xsl:text>
       <xsl:text>]</xsl:text>
     </xsl:if>
   </xsl:template>
