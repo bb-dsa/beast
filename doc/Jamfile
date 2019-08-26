@@ -128,6 +128,7 @@ make stage1.xsl                 : docca/include/docca/stage1.xsl                
 make base-stage1.xsl            : docca/include/docca/base-stage1.xsl            : @copy_script ;
 make stage2.xsl                 : docca/include/docca/stage2.xsl                 : @copy_script ;
 make assemble-quickbook.xsl     : docca/include/docca/assemble-quickbook.xsl     : @copy_script ;
+make emphasized-types.xsl       : docca/include/docca/emphasized-types.xsl       : @copy_script ;
 
 # Beginning (failed) attempt to make all the xslt-visualizer code available
 #make xslt-visualizer : docca/include/xslt-visualizer : @copy_dir ;
