@@ -142,12 +142,6 @@
                                  sectiondef[@kind eq 'related'],
 
                                  detaileddescription
-                                 (:,
-
-                                 (: ASSUMPTION: simplesect and parameterlist only appear in a contiguous block at the end of detaileddescription :)
-                                 (: TODO: verify this is true, and, if not, change the implementation so it does whatever the right thing is :)
-                                 detaileddescription//(simplesect | parameterlist)
-                                 :)
                                  "/>
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
@@ -385,12 +379,6 @@
   <xsl:template mode="section-body" match="detaileddescription | simplesect">
     <xsl:apply-templates/>
   </xsl:template>
-
-          <!-- We are already processing these at the top level; don't duplicate their content -->
-          <!--
-          <xsl:template match="detaileddescription//simplesect
-                             | detaileddescription//parameterlist"/>
-                             -->
 
   <xsl:template mode="section-body" match="compounddef">
     <xsl:apply-templates mode="includes-header" select="."/>
