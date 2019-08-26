@@ -127,8 +127,8 @@
   <xsl:template mode="before" match="td">{$nl}    [</xsl:template>
   <xsl:template mode="after"  match="td">{$nl}    ]</xsl:template>
 
-  <xsl:template mode="before" match="bold"    >[*</xsl:template>
-  <xsl:template mode="after"  match="bold"    >]</xsl:template>
+  <xsl:template mode="before" match="bold">[*</xsl:template>
+  <xsl:template mode="after"  match="bold">]</xsl:template>
 
   <xsl:template mode="before" match="emphasis">['</xsl:template>
   <xsl:template mode="after"  match="emphasis">]</xsl:template>
