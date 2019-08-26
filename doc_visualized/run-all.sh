@@ -10,9 +10,9 @@ cp -r ../doc/docca/include/xslt-visualizer build && \
 
 echo "Copying shell scripts..." && \
 cp extract-xml-pages.sh \
-   prepare.sh \
-   trace.sh \
-   render.sh \
+   prepare.sh prepare-stage1.sh prepare-stage2.sh \
+   trace.sh   trace-stage1.sh   trace-stage2.sh \
+   render.sh  render-stage1.sh  render-stage2.sh \
    assemble-quickbook.sh \
 build && \
 

@@ -69,6 +69,10 @@ for the links called "stage1_visualized" and "stage2_visualized". Clicking these
 relevant visualizations for that page. You can use this to better understand how the two stages of
 XSLT are used to generate the QuickBook, which can also be helpful for debugging.
 
+NOTE: The stage-two visualizations have become the most time-consuming to generate. For most use cases,
+I suspect that ./non-traced-build.sh or ./stage1-trace-only.sh is what you will want to invoke instead of
+./run-all.sh (see the sections about this below).
+
 ## Running a partial build (editing index.xml)
 If you want to only do a partial build, copy build/index.xml into the doc_visualized directory (its parent
 directory) and then comment out everything but the pages you want to include in the build. The
@@ -100,5 +104,13 @@ As a way of speeding things up further, you can run a build that includes everyt
 (which is the most time-consuming thing to generate). To do this, simply run:
 
  * ./non-traced-build.sh
+
+in lieu of run-all.sh. The technique for doing partial builds still applies to this build script as well.
+
+# Running a build with visualizations for stage one only (one master script)
+As a compromise, you can run a build that includes everything but the stage-two visualization
+(which is the most time-consuming thing to generate). To do this, simply run:
+
+ * ./stage1-trace-only.sh
 
 in lieu of run-all.sh. The technique for doing partial builds still applies to this build script as well.

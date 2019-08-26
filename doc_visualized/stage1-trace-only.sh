@@ -8,7 +8,8 @@ cp ../doc/docca/include/docca/* build && \
 echo "Copying shell scripts..." && \
 cp extract-xml-pages.sh \
    assemble-quickbook.sh \
-   execute-stages.sh execute-stage1.sh execute-stage2.sh \
+   prepare-stage1.sh trace-stage1.sh render-stage1.sh \
+   execute-stage2.sh \
 build && \
 
 cd build && \
@@ -16,8 +17,17 @@ cd build && \
 echo "Calling extract-xml-pages.sh..." && \
 ./extract-xml-pages.sh && \
 
-echo "Running execute-stages.sh..." && \
-./execute-stages.sh && \
+echo "Running prepare-stage1.sh..." && \
+./prepare-stage1.sh && \
+
+echo "Running trace-stage1.sh..." && \
+./trace-stage1.sh && \
+
+echo "Running render-stage1.sh..." && \
+./render-stage1.sh && \
+
+echo "Running execute-stage2.sh..." && \
+./execute-stage2.sh && \
 
 echo "Calling assemble-quickbook.sh..." && \
 ./assemble-quickbook.sh stage2 && \
