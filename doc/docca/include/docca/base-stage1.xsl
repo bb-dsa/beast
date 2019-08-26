@@ -368,10 +368,11 @@
                     <xsl:apply-templates select="d:referenced-class/doxygen/compounddef/briefdescription"/>
                   </xsl:template>
                   <xsl:template mode="member-description" match="memberdef">
-                    <xsl:apply-templates select="briefdescription"/>
+                    <xsl:variable name="descriptions" select="../memberdef[name eq current()/name]/briefdescription"/>
                     <!-- Pull in any overload descriptions but only if they vary -->
-                    <xsl:apply-templates select="following-sibling::memberdef[name eq current()/name]
-                                                /briefdescription[not(. eq current()/briefdescription)]"/>
+                    <xsl:for-each select="distinct-values($descriptions)">
+                      <xsl:apply-templates select="$descriptions[. eq current()][1]"/>
+                    </xsl:for-each>
                   </xsl:template>
 
 
