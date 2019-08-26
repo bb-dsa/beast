@@ -13,7 +13,8 @@
   <xsl:template match="page">
     <xsl:copy-of select="unparsed-text(concat($input-dir, '/', @href))"/>
     <xsl:apply-templates select="page"/>
-    <xsl:text>&#xA;[endsect]&#xA;</xsl:text>
+    <!-- Two line breaks before to ensure it doesn't get absorbed into a preceding list -->
+    <xsl:text>&#xA;&#xA;[endsect]&#xA;</xsl:text>
   </xsl:template>
 
 </xsl:stylesheet>
