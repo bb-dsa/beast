@@ -1,3 +1,11 @@
+<!DOCTYPE xsl:stylesheet [
+<!ENTITY SYNTAX_BLOCK "*[ self::compound
+                        | self::function
+                        | self::typedef
+                        | self::enum
+                        | self::overloaded-member
+                        ]">
+]>
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -41,20 +49,18 @@
     <xsl:apply-templates mode="includes-footer" select="."/>
   </xsl:template>
 
-  <xsl:template mode="before" match="compound | function | typedef | enum | overloaded-member">{$nl}```{$nl}</xsl:template>
-  <xsl:template mode="after"  match="compound | function | typedef | enum | overloaded-member">{$nl}```{$nl}</xsl:template>
-
-  <xsl:template mode="append" match="function">;</xsl:template>
+  <xsl:template mode="before" match="&SYNTAX_BLOCK;">{$nl}```{$nl}</xsl:template>
+  <xsl:template mode="after"  match="&SYNTAX_BLOCK;">{$nl}```{$nl}</xsl:template>
 
   <!-- Merge adjacent overloaded-members into one syntax block, separated by one blank line -->
-  <xsl:template mode="before" match="overloaded-member[preceding-sibling::*[1]/self::overloaded-member]">{$nl}{$nl}</xsl:template>
-  <xsl:template mode="after"  match="overloaded-member[following-sibling::*[1]/self::overloaded-member]"/>
+  <xsl:template mode="after"  match="overloaded-member[following-sibling::*[1]/self::overloaded-member]" priority="1"/>
+  <xsl:template mode="before" match="overloaded-member[preceding-sibling::*[1]/self::overloaded-member]" priority="1"
+    >{$nl}{$nl}</xsl:template>
 
   <xsl:template mode="after" match="overloaded-member/type[normalize-space(.)]
                                   |          function/type[normalize-space(.)]">{$nl}</xsl:template>
 
-  <xsl:template mode="before" match="overloaded-member/link">``</xsl:template>
-  <xsl:template mode="after"  match="overloaded-member/link">``</xsl:template>
+  <xsl:template mode="append" match="function">;</xsl:template>
 
   <xsl:template mode="append" match="overloaded-member">
     <xsl:text>;{$nl}</xsl:text>
@@ -66,8 +72,10 @@
     <xsl:text>``</xsl:text>
   </xsl:template>
 
-  <xsl:template match="link"                >[link {$doc-ref}.{@to} {d:qb-escape(.)}]</xsl:template>
-  <xsl:template match="link[@code eq 'yes']">[link {$doc-ref}.{@to} `{d:qb-escape(.)}`]</xsl:template>
+  <xsl:template priority="1"
+                match="&SYNTAX_BLOCK;//ref">``[link {$doc-ref}.{@d:refid} {d:qb-escape(.)}]``</xsl:template>
+  <xsl:template match="table//ref"           >[link {$doc-ref}.{@d:refid} {d:qb-escape(.)}]</xsl:template>
+  <xsl:template match="ref"                  >[link {$doc-ref}.{@d:refid} `{d:qb-escape(.)}`]</xsl:template>
 
   <xsl:template mode="before" match="enum/name">enum </xsl:template>
 
@@ -177,7 +185,7 @@
   <!-- Boilerplate default rules for elements -->
   <!-- Convention of this stylesheet is to favor use of just "before" and "after"
        and to utilize "append" (and maybe "insert") only when a distinction is needed -->
-  <xsl:template match="*" priority="1">
+  <xsl:template match="*" priority="10">
     <xsl:apply-templates mode="before" select="."/>
     <!-- enable if needed/desired
     <xsl:apply-templates mode="insert" select="."/> -->

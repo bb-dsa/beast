@@ -175,7 +175,7 @@
                       <xsl:apply-templates mode="modifier" select="(@explicit, @friend, @static)[. eq 'yes'],
                                                                    @virt[. eq 'virtual']"/>
                       <xsl:apply-templates select="type"/>
-                      <link to="{@d:page-refid}">{name}</link>
+                      <ref d:refid="{@d:page-refid}">{name}</ref>
                       <params>
                         <xsl:apply-templates select="param"/>
                       </params>
@@ -352,7 +352,7 @@
             <tr>
               <td>
                 <bold>
-                  <link to="{@d:page-refid}">{d:member-name(.)}</link>
+                  <ref d:refid="{@d:page-refid}">{d:member-name(.)}</ref>
                 </bold>
               </td>
               <td>
@@ -447,11 +447,6 @@
 
   <!-- We only need to keep the @file attribute -->
   <xsl:template match="location/@*[. except ../@file]"/>
-
-
-  <xsl:template match="ref">
-    <link to="{@d:refid}" code="yes">{.}</link>
-  </xsl:template>
 
   <xsl:template match="briefdescription">
     <div>
