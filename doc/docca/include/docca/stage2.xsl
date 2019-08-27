@@ -74,7 +74,7 @@
 
   <xsl:template priority="1"
                 match="&SYNTAX_BLOCK;//ref">``[link {$doc-ref}.{@d:refid} {d:qb-escape(.)}]``</xsl:template>
-  <xsl:template match="table//ref"           >[link {$doc-ref}.{@d:refid} {d:qb-escape(.)}]</xsl:template>
+  <xsl:template match="td[1]//ref"           >[link {$doc-ref}.{@d:refid} {d:qb-escape(.)}]</xsl:template>
   <xsl:template match="ref"                  >[link {$doc-ref}.{@d:refid} `{d:qb-escape(.)}`]</xsl:template>
 
   <xsl:template mode="before" match="enum/name">enum </xsl:template>
