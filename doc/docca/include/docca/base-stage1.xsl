@@ -403,8 +403,26 @@
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
       <xsl:apply-templates select="name, type"/>
     </typedef>
-    <!-- TODO: output typedef table here (when applicable) -->
+    <!-- Nested compounddefs were derived from refs in the typedef's type -->
+    <xsl:apply-templates select="d:referenced-class/compounddef"/>
   </xsl:template>
+
+      <!-- Suppress the display of several aspects of referenced classes (relevant on typedef pages) -->
+
+          <!-- Don't show the briefdescription -->
+          <xsl:template match="d:referenced-class/compounddef/briefdescription"/>
+
+          <!-- Don't show the Synopsis -->
+          <xsl:template mode="section" match="d:referenced-class/compounddef"/>
+
+          <!-- Exclude the "Description" heading (only show the body) -->
+          <xsl:template mode="section" match="d:referenced-class/compounddef/detaileddescription">
+            <xsl:apply-templates mode="section-body" select="."/>
+          </xsl:template>
+
+          <!-- Don't show the includes header or footer -->
+          <xsl:template mode="includes" match="d:referenced-class/compounddef"/>
+
 
   <xsl:template mode="section-body" match="memberdef[@kind eq 'enum']">
     <enum>

@@ -261,11 +261,13 @@
                       <xsl:apply-templates mode="#current" select="@*"/>
                       <xsl:apply-templates mode="member-page-insert" select="."/>
                       <xsl:apply-templates mode="#current"/>
+                      <xsl:apply-templates mode="member-page-append" select="."/>
                     </xsl:copy>
                   </xsl:template>
 
-                          <!-- By default, don't insert anything -->
-                          <xsl:template mode="member-page-insert" match="*"/>
+                          <!-- By default, don't insert or append anything -->
+                          <xsl:template mode="member-page-insert
+                                              member-page-append" match="*"/>
 
                   <!-- Strip out extraneous whitespace -->
                   <xsl:template mode="list-page member-page" match="compounddef/text() | sectiondef/text()"/>
@@ -305,6 +307,18 @@
                               <xsl:apply-templates mode="page-id" select="."/>
                             </xsl:attribute>
                           </xsl:template>
+
+                  <!-- Make data available for the typedef tables, if applicable -->
+                  <xsl:template mode="member-page-append" match="memberdef[@kind eq 'typedef']
+                                                                          [type/ref]
+                                                                          [not(contains(type, '*'))]">
+                    <xsl:for-each select="type/ref">
+                      <d:referenced-class>
+                        <xsl:variable name="compound" select="d:get-target-element(.)[self::compound]"/>
+                        <xsl:apply-templates mode="compound-page" select="$compound ! d:get-source-doc(.)/*/compounddef"/>
+                      </d:referenced-class>
+                    </xsl:for-each>
+                  </xsl:template>
 
                   <!-- Finally, add the page type -->
                   <xsl:template mode="compound-page-insert" match="/doxygen">
