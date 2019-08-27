@@ -30,7 +30,7 @@ echo "Running execute-stage2.sh..." && \
 ./execute-stage2.sh && \
 
 echo "Calling assemble-quickbook.sh..." && \
-./assemble-quickbook.sh stage2 && \
+./assemble-quickbook.sh && \
 
 echo "Calling the Beast build to run the Quickbook -> BoostBook -> DocBook -> HTML conversion..." && \
 cd .. && \
