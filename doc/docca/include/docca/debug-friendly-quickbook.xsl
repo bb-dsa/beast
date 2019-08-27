@@ -17,6 +17,7 @@
     <xsl:result-document href="{replace($input-uri, '\.xml$', '.txt')}">
       <xsl:copy-of select="unparsed-text($input-uri)"/>
     </xsl:result-document>
+    <xsl:apply-templates select="page"/>
   </xsl:template>
 
 </xsl:stylesheet>
