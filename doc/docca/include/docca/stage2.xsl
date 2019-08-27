@@ -77,6 +77,9 @@
   <xsl:template match="td[1]//ref"           >[link {$doc-ref}.{@d:refid} {d:qb-escape(.)}]</xsl:template>
   <xsl:template match="ref"                  >[link {$doc-ref}.{@d:refid} `{d:qb-escape(.)}`]</xsl:template>
 
+  <xsl:template mode="before" match="computeroutput[not(ref)] | code">`</xsl:template>
+  <xsl:template mode="after"  match="computeroutput[not(ref)] | code">`</xsl:template>
+
   <xsl:template mode="before" match="enum/name">enum </xsl:template>
 
   <xsl:template mode="before" match="typedef/name">using </xsl:template>
@@ -138,9 +141,6 @@
 
   <xsl:template mode="before" match="emphasis">['</xsl:template>
   <xsl:template mode="after"  match="emphasis">]</xsl:template>
-
-  <xsl:template mode="before" match="computeroutput | code">`</xsl:template>
-  <xsl:template mode="after"  match="computeroutput | code">`</xsl:template>
 
   <xsl:template mode="before" match="ulink">[@{@url} </xsl:template>
   <xsl:template mode="after"  match="ulink">]</xsl:template>
