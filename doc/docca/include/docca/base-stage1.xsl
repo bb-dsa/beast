@@ -26,9 +26,14 @@
       <title>
         <xsl:apply-templates mode="page-title" select="."/>
       </title>
+      <xsl:apply-templates select="@d:base-compound-refid"/>
       <xsl:next-match/>
     </page>
   </xsl:template>
+
+          <xsl:template match="@d:base-compound-refid">
+            <div>(Inherited from <ref d:refid="{.}">{../@d:base-compound-name}</ref>)</div>
+          </xsl:template>
 
           <!-- Put an index term on every page except class (compound) and overloaded-member pages -->
           <xsl:template mode="index-term-atts" match="doxygen[@d:page-type eq 'compound' or @d:overload-position]"/>

@@ -56,7 +56,7 @@
     <!-- Create a filtered copy of members within their minimal context, listing only the visible ones -->
     <xsl:variable name="visible-members" as="element(member)*">
       <xsl:variable name="compound" as="element()">
-        <compound kind="{@kind}">
+        <compound kind="{@kind}" refid="{@refid}">
           <name>{name}</name>
           <xsl:copy-of select="member[@refid = $memberdefs/@id]"/>
         </compound>
@@ -290,8 +290,20 @@
                       <xsl:attribute name="d:overload-position" select="d:overload-position($member)"/>
                       <xsl:attribute name="d:overload-size" select="count(d:overloaded-members($member))"/>
                     </xsl:if>
+                    <xsl:if test="$member[not(starts-with(@refid, ../@refid))]">
+                      <xsl:variable name="base-compound" select="$index-xml/*/compound[starts-with($member/@refid, @refid)]
+                                                                                      [not(d:should-ignore-compound(.))]"/>
+                      <xsl:apply-templates mode="base-compound-atts" select="$base-compound"/>
+                    </xsl:if>
                     <xsl:next-match/>
                   </xsl:template>
+
+                          <xsl:template mode="base-compound-atts" match="compound">
+                            <xsl:attribute name="d:base-compound-name" select="d:strip-doc-ns(name)"/>
+                            <xsl:attribute name="d:base-compound-refid">
+                              <xsl:apply-templates mode="page-id" select="."/>
+                            </xsl:attribute>
+                          </xsl:template>
 
                   <!-- Finally, add the page type -->
                   <xsl:template mode="compound-page-insert" match="/doxygen">
