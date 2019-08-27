@@ -427,7 +427,7 @@
                                                    @virt  [. eq 'virtual']"/>
       <xsl:apply-templates select="type, name"/>
       <params>
-        <xsl:apply-templates select="param"/> <!-- TODO: implement param[array] rendering (elsewhere) -->
+        <xsl:apply-templates select="param"/>
       </params>
       <xsl:apply-templates mode="modifier" select="@const[. eq 'yes']"/>
     </function>
