@@ -344,7 +344,7 @@
                     <xsl:sequence select="name"/>
                   </xsl:template>
                   <xsl:template mode="member-name" match="innerclass">
-                    <xsl:sequence select="d:referenced-class/doxygen/compounddef/compoundname ! d:strip-ns(.)"/>
+                    <xsl:sequence select="d:referenced-inner-class/compounddef/compoundname ! d:strip-ns(.)"/>
                   </xsl:template>
 
 
@@ -364,7 +364,7 @@
           </xsl:template>
 
                   <xsl:template mode="member-description" match="innerclass">
-                    <xsl:apply-templates select="d:referenced-class/doxygen/compounddef/briefdescription"/>
+                    <xsl:apply-templates select="d:referenced-inner-class/compounddef/briefdescription"/>
                   </xsl:template>
                   <xsl:template mode="member-description" match="memberdef">
                     <xsl:variable name="descriptions" select="../memberdef[name eq current()/name]/briefdescription"/>
@@ -404,24 +404,24 @@
       <xsl:apply-templates select="name, type"/>
     </typedef>
     <!-- Nested compounddefs were derived from refs in the typedef's type -->
-    <xsl:apply-templates select="d:referenced-class/compounddef"/>
+    <xsl:apply-templates select="d:referenced-typedef-class/compounddef"/>
   </xsl:template>
 
-      <!-- Suppress the display of several aspects of referenced classes (relevant on typedef pages) -->
+      <!-- Suppress the display of several aspects of referenced typedef classes -->
 
           <!-- Don't show the briefdescription -->
-          <xsl:template match="d:referenced-class/compounddef/briefdescription"/>
+          <xsl:template match="d:referenced-typedef-class/compounddef/briefdescription"/>
 
           <!-- Don't show the Synopsis -->
-          <xsl:template mode="section" match="d:referenced-class/compounddef"/>
+          <xsl:template mode="section" match="d:referenced-typedef-class/compounddef"/>
 
           <!-- Exclude the "Description" heading (only show the body) -->
-          <xsl:template mode="section" match="d:referenced-class/compounddef/detaileddescription">
+          <xsl:template mode="section" match="d:referenced-typedef-class/compounddef/detaileddescription">
             <xsl:apply-templates mode="section-body" select="."/>
           </xsl:template>
 
           <!-- Don't show the includes header or footer -->
-          <xsl:template mode="includes" match="d:referenced-class/compounddef"/>
+          <xsl:template mode="includes" match="d:referenced-typedef-class/compounddef"/>
 
 
   <xsl:template mode="section-body" match="memberdef[@kind eq 'enum']">

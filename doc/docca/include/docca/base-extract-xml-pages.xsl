@@ -313,10 +313,10 @@
                                                                           [type/ref]
                                                                           [not(contains(type, '*'))]">
                     <xsl:for-each select="type/ref">
-                      <d:referenced-class>
+                      <d:referenced-typedef-class>
                         <xsl:variable name="compound" select="d:get-target-element(.)[self::compound]"/>
                         <xsl:apply-templates mode="compound-page" select="$compound ! d:get-source-doc(.)/*/compounddef"/>
-                      </d:referenced-class>
+                      </d:referenced-typedef-class>
                     </xsl:for-each>
                   </xsl:template>
 
@@ -346,10 +346,10 @@
                   <!-- For public innerclasses, insert the referenced class inline -->
                   <xsl:template mode="compound-page-insert" match="innerclass[@prot eq 'public']">
                     <xsl:attribute name="d:page-refid" select="d:make-id(.)"/>
-                    <d:referenced-class>
+                    <d:referenced-inner-class>
                       <xsl:variable name="compound" select="d:get-target-element(.)" as="element(compound)"/>
-                      <xsl:apply-templates mode="compound-page" select="d:get-source-doc($compound)"/>
-                    </d:referenced-class>
+                      <xsl:apply-templates mode="compound-page" select="d:get-source-doc($compound)/*/compounddef"/>
+                    </d:referenced-inner-class>
                   </xsl:template>
 
                   <!-- TODO: refactor this rule -->
