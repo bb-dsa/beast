@@ -477,6 +477,14 @@
     </para>
   </xsl:template>
 
+  <!-- Strip the project namespace prefix from link display names
+       (matching the text node so this will still work with the strip-leading-space mode/process below) -->
+  <!-- TODO: figure out if we need anything like this (maybe not).
+  <xsl:template match="ref/text()[starts-with(.,$doc-ns)]">
+    <xsl:value-of select="d:strip-doc-ns(.)"/>
+  </xsl:template>
+  -->
+
 
   <!-- When a <para> directly contains a mix of inline nodes and block-level elements, normalize its content -->
   <xsl:template match="para[&BLOCK_LEVEL_ELEMENT;]">
@@ -530,7 +538,7 @@
     <xsl:param name="done-stripping" tunnel="yes" select="false()"/>
     <xsl:choose>
       <xsl:when test="$done-stripping">
-        <xsl:sequence select="."/>
+        <xsl:apply-templates select="."/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select="replace(.,'^\s+','')"/>
