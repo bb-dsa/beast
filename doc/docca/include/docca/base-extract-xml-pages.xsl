@@ -176,9 +176,10 @@
                   <!-- But directly inside <memberdef>, don't copy anything... -->
                   <xsl:template mode="compound-page" match="memberdef/node()"/>
 
-                  <!-- ...except for <name> and <briefdescription> -->
+                  <!-- ...except for <name>, <briefdescription>, and <type> -->
                   <xsl:template mode="compound-page" match="memberdef/name
-                                                          | memberdef/briefdescription" priority="1">
+                                                          | memberdef/briefdescription
+                                                          | memberdef/type" priority="1">
                     <xsl:call-template name="copy-in-compound-page"/>
                   </xsl:template>
 
