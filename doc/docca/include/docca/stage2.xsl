@@ -3,6 +3,7 @@
                         | self::function
                         | self::typedef
                         | self::enum
+                        | self::variable
                         | self::overloaded-member
                         ]">
 ]>
@@ -89,6 +90,9 @@
   <xsl:template match="type[. eq '__implementation_defined__'    ]">``['implementation-defined]``</xsl:template>
   <xsl:template match="type[. eq '__see_below__'                 ]">``['see-below]``</xsl:template>
   <xsl:template match="type[. = ('__deduced__','void_or_deduced')]">``__deduced__``</xsl:template>
+
+  <xsl:template mode="before" match="variable/name | variable/initializer">{' '}</xsl:template>
+  <xsl:template mode="append" match="variable">;</xsl:template>
 
   <xsl:template mode="after" match="compound/kind">{' '}</xsl:template>
 

@@ -412,7 +412,14 @@
     </enum>
   </xsl:template>
 
-  <!-- TODO: finish implementing this; consider different elements for <enum>, <function>, etc. -->
+  <xsl:template mode="section-body" match="memberdef[@kind eq 'variable']">
+    <variable>
+      <xsl:apply-templates mode="modifier" select="@static[. eq 'yes']"/>
+      <xsl:apply-templates select="type, name"/>
+      <xsl:apply-templates select="initializer[count(../initializer) eq 1]"/>
+    </variable>
+  </xsl:template>
+
   <xsl:template mode="section-body" match="memberdef[@kind = ('function','friend')]">
     <function>
       <xsl:apply-templates mode="normalize-params" select="templateparamlist"/>
