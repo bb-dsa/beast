@@ -283,7 +283,7 @@
                     <xsl:next-match/>
                   </xsl:template>
 
-                  <!-- Also, if applicable, insert the overload position of this member -->
+                  <!-- Also, if applicable, insert the overload position and/or base compound reference of this member -->
                   <xsl:template mode="member-page-insert" match="/doxygen" priority="1">
                     <xsl:param name="member" tunnel="yes"/>
                     <xsl:if test="d:is-overloaded($member)">
