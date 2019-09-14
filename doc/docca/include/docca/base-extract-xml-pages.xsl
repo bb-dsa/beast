@@ -51,23 +51,26 @@
   <xsl:template match="compound">
     <!-- Load each input file only once -->
     <xsl:variable name="source-doc" select="d:get-source-doc(.)"/>
-    <!-- Look up memberdefs (and constrain by visibility) only once -->
-    <xsl:variable name="memberdefs" select="key('visible-memberdefs-by-id', member/@refid, $source-doc)"/>
-    <!-- Create a filtered copy of members within their minimal context, listing only the visible ones -->
-    <xsl:variable name="visible-members" as="element(member)*">
-      <xsl:variable name="compound" as="element()">
-        <compound kind="{@kind}" refid="{@refid}">
-          <name>{name}</name>
-          <xsl:copy-of select="member[@refid = $memberdefs/@id]"/>
-        </compound>
+    <!-- Ignore private classes unless private members are enabled -->
+    <xsl:if test="$include-private-members or not($source-doc/doxygen/compounddef/@prot eq 'private')">
+      <!-- Look up memberdefs (and constrain by visibility) only once -->
+      <xsl:variable name="memberdefs" select="key('visible-memberdefs-by-id', member/@refid, $source-doc)"/>
+      <!-- Create a filtered copy of members within their minimal context, listing only the visible ones -->
+      <xsl:variable name="visible-members" as="element(member)*">
+        <xsl:variable name="compound" as="element()">
+          <compound kind="{@kind}" refid="{@refid}">
+            <name>{name}</name>
+            <xsl:copy-of select="member[@refid = $memberdefs/@id]"/>
+          </compound>
+        </xsl:variable>
+        <xsl:sequence select="$compound/member"/>
       </xsl:variable>
-      <xsl:sequence select="$compound/member"/>
-    </xsl:variable>
-    <xsl:apply-templates mode="create-page" select=".">
-      <xsl:with-param name="source-doc" select="$source-doc" tunnel="yes"/>
-      <xsl:with-param name="memberdefs" select="$memberdefs" tunnel="yes"/>
-      <xsl:with-param name="visible-members" select="$visible-members" tunnel="yes"/>
-    </xsl:apply-templates>
+      <xsl:apply-templates mode="create-page" select=".">
+        <xsl:with-param name="source-doc" select="$source-doc" tunnel="yes"/>
+        <xsl:with-param name="memberdefs" select="$memberdefs" tunnel="yes"/>
+        <xsl:with-param name="visible-members" select="$visible-members" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:if>
   </xsl:template>
 
           <xsl:function name="d:get-source-doc" as="document-node()">
